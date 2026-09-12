@@ -1,0 +1,423 @@
+-- script cloud — Multihub v73.1
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+local LP = Players.LocalPlayer
+local speed = 16
+local enabled = false
+local noclip = false
+local gui = Instance.new("ScreenGui", LP:WaitForChild("PlayerGui"))
+gui.Name = "script_ruslan123"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 900, 0, 800)
+frame.Position = UDim2.new(0.5, -450, 0.5, -400)
+frame.BackgroundColor3 = Color3.fromRGB(255, 0, 255)
+frame.BorderSizePixel = 0
+frame.Visible = false
+frame.ClipsDescendants = false
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 200, 0, 60)
+title.Position = UDim2.new(0, -100, 0, -30)
+title.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+title.Text = "script ruslan123 script ruslan123 script ruslan123 СКОРОСТЬ НОУКЛИП Z X"
+title.TextColor3 = Color3.fromRGB(255, 255, 0)
+title.Font = Enum.Font.SciFi
+title.TextSize = 40
+title.BorderSizePixel = 0
+title.Rotation = 8
+
+local toggleBtn = Instance.new("TextButton", frame)
+toggleBtn.Size = UDim2.new(1, -20, 0, 60)
+toggleBtn.Position = UDim2.new(0, 10, 0, 40)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 100, 0)
+toggleBtn.Text = "СКОРОСТЬ СКОРОСТЬ СКОРОСТЬ OFF [Z] СКОРОСТЬ СКОРОСТЬ Z Z Z script ruslan123"
+toggleBtn.TextColor3 = Color3.fromRGB(0, 0, 255)
+toggleBtn.Font = Enum.Font.SciFi
+toggleBtn.TextSize = 26
+toggleBtn.TextWrapped = false
+toggleBtn.BorderSizePixel = 0
+
+local slider = Instance.new("TextButton", frame)
+slider.Size = UDim2.new(1, 200, 0, 30)
+slider.Position = UDim2.new(0, -100, 0, 120)
+slider.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+slider.Text = "СКОРОСТЬ СЛАЙДЕР ZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+slider.TextColor3 = Color3.fromRGB(255, 255, 0)
+slider.TextSize = 22
+slider.AutoButtonColor = false
+slider.BorderSizePixel = 0
+slider.Rotation = -6
+
+local fill = Instance.new("Frame", slider)
+fill.Size = UDim2.new(0, 0, 1, 0)
+fill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+fill.BorderSizePixel = 0
+
+local valLbl = Instance.new("TextLabel", frame)
+valLbl.Size = UDim2.new(1, 300, 0, 50)
+valLbl.Position = UDim2.new(0, -150, 0, 160)
+valLbl.BackgroundTransparency = 1
+valLbl.Text = "Скорость: 16 СКОРОСТЬ: 16 Скорость 16 СКОРОСТЬ СКОРОСТЬ СКОРОСТЬ СКОРОСТЬ"
+valLbl.TextColor3 = Color3.fromRGB(255, 0, 0)
+valLbl.Font = Enum.Font.SciFi
+valLbl.TextSize = 30
+valLbl.TextWrapped = false
+valLbl.Rotation = 5
+
+local noclipBtn = Instance.new("TextButton", frame)
+noclipBtn.Size = UDim2.new(1, -20, 0, 60)
+noclipBtn.Position = UDim2.new(0, 10, 0, 220)
+noclipBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+noclipBtn.Text = "НОУКЛИП НОУКЛИП OFF [X] НОУКЛИП НОУКЛИП X X X script ruslan123"
+noclipBtn.TextColor3 = Color3.fromRGB(255, 255, 0)
+noclipBtn.Font = Enum.Font.SciFi
+noclipBtn.TextSize = 26
+noclipBtn.TextWrapped = false
+noclipBtn.BorderSizePixel = 0
+noclipBtn.Rotation = -3
+
+-- ========== 25 МУСОРНЫХ ФУНКЦИЙ ==========
+-- часть работает, часть pure рофл
+local fraud = {}
+
+local function addJunk(parent, label, y, color)
+    local b = Instance.new("TextButton", parent)
+    b.Size = UDim2.new(1, -20, 0, 45)
+    b.Position = UDim2.new(0, 10, 0, y)
+    b.BackgroundColor3 = color or Color3.fromRGB(math.random(50,255), math.random(50,255), math.random(50,255))
+    b.Text = label
+    b.TextColor3 = Color3.fromRGB(math.random(50,255), math.random(50,255), math.random(50,255))
+    b.Font = Enum.Font.SciFi
+    b.TextSize = 20
+    b.TextWrapped = false
+    b.BorderSizePixel = 0
+    b.Rotation = math.random(-10, 10)
+    return b
+end
+
+-- 1. случайная скорость
+fraud[1] = addJunk(frame, "🎲 Рандомная скорость (вжух)", 290)
+fraud[1].MouseButton1Click:Connect(function()
+    speed = math.random(16, 500)
+    valLbl.Text = "Скорость: " .. speed .. " РАНДОМ РАНДОМ РАНДОМ"
+    applySpeed()
+end)
+
+-- 2. спам в чат
+fraud[2] = addJunk(frame, "💬 Спам в чат 'я гей'", 340)
+fraud[2].MouseButton1Click:Connect(function()
+    for i = 1, 5 do
+        pcall(function()
+            game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
+                :FindFirstChild("SayMessageRequest"):FireServer("я гей лол", "All")
+        end)
+        task.wait(0.3)
+    end
+end)
+
+-- 3. рандомная телепорт-хуйня
+fraud[3] = addJunk(frame, "🌍 Рандомный телепорт", 390)
+fraud[3].MouseButton1Click:Connect(function()
+    local root = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+    if root then
+        root.CFrame = CFrame.new(math.random(-500,500), math.random(50,300), math.random(-500,500))
+    end
+end)
+
+-- 4. дёргание
+fraud[4] = addJunk(frame, "🕺 Дёргание персонажа", 440)
+fraud[4].MouseButton1Click:Connect(function()
+    local char = LP.Character
+    if not char then return end
+    for i = 1, 30 do
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if root then root.CFrame = root.CFrame * CFrame.Angles(0, math.random(-10,10), 0) end
+        task.wait(0.02)
+    end
+end)
+
+-- 5. скинуть все вещи
+fraud[5] = addJunk(frame, "🗑 Скинуть все вещи", 490)
+fraud[5].MouseButton1Click:Connect(function()
+    local char = LP.Character
+    if char then
+        for _, t in ipairs(char:GetChildren()) do
+            if t:IsA("Tool") then pcall(function() t.Parent = workspace end) end
+        end
+    end
+end)
+
+-- 6. включить музыку (не работает)
+fraud[6] = addJunk(frame, "🎵 Включить музыку (не работает)", 540)
+fraud[6].MouseButton1Click:Connect(function()
+    print("музыка включена 🎶 но ты её не слышишь")
+end)
+
+-- 7. показать хуй
+fraud[7] = addJunk(frame, "🍆 Показать хуй (рофл)", 590)
+fraud[7].MouseButton1Click:Connect(function()
+    local bill = Instance.new("BillboardGui", LP.Character)
+    bill.Size = UDim2.new(0, 400, 0, 400)
+    bill.StudsOffset = Vector3.new(0, 5, 0)
+    bill.AlwaysOnTop = true
+    local l = Instance.new("TextLabel", bill)
+    l.Size = UDim2.new(1,0,1,0)
+    l.BackgroundTransparency = 1
+    l.Text = "🍆🍆🍆 ХУЙ 🍆🍆🍆"
+    l.TextColor3 = Color3.fromRGB(255,0,0)
+    l.Font = Enum.Font.SciFi
+    l.TextSize = 80
+    task.delay(3, function() bill:Destroy() end)
+end)
+
+-- 8. уволить себя
+fraud[8] = addJunk(frame, "🚪 Уволить себя", 640)
+fraud[8].MouseButton1Click:Connect(function()
+    print("ты уволен ❌")
+    frame.Visible = false
+end)
+
+-- 9. считать до 100
+fraud[9] = addJunk(frame, "🔢 Считать до 100", 690)
+fraud[9].MouseButton1Click:Connect(function()
+    for i = 1, 100 do
+        valLbl.Text = "СЧЁТ: " .. i
+        task.wait(0.05)
+    end
+end)
+
+-- 10. мигание
+fraud[10] = addJunk(frame, "💡 Мигание экрана", 740)
+fraud[10].MouseButton1Click:Connect(function()
+    for i = 1, 10 do
+        frame.BackgroundColor3 = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))
+        task.wait(0.1)
+    end
+end)
+
+-- 11. подтвердить что ты гей
+fraud[11] = addJunk(frame, "🏳️‍🌈 Подтвердить что ты гей", 790)
+fraud[11].MouseButton1Click:Connect(function()
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Подтверждение",
+            Text = "ты гей ✔",
+            Duration = 5
+        })
+    end)
+end)
+
+-- 12. рывок
+fraud[12] = addJunk(frame, "💨 Рывок (dash)", 840)
+fraud[12].MouseButton1Click:Connect(function()
+    local char = LP.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if root then root.CFrame = root.CFrame + root.CFrame.LookVector * 100 end
+end)
+
+-- 13. маленький размер
+fraud[13] = addJunk(frame, "🐜 Маленький размер", 890)
+fraud[13].MouseButton1Click:Connect(function()
+    local hum = LP.Character and LP.Character:FindFirstChild("Humanoid")
+    if hum then
+        pcall(function() hum.BodyDepthScale.Value = 0.3 end)
+        pcall(function() hum.BodyHeightScale.Value = 0.3 end)
+        pcall(function() hum.BodyWidthScale.Value = 0.3 end)
+    end
+end)
+
+-- 14. большой размер
+fraud[14] = addJunk(frame, "🦖 Большой размер", 940)
+fraud[14].MouseButton1Click:Connect(function()
+    local hum = LP.Character and LP.Character:FindFirstChild("Humanoid")
+    if hum then
+        pcall(function() hum.BodyDepthScale.Value = 3 end)
+        pcall(function() hum.BodyHeightScale.Value = 3 end)
+        pcall(function() hum.BodyWidthScale.Value = 3 end)
+    end
+end)
+
+-- 15. сброс размера
+fraud[15] = addJunk(frame, "↩️ Сброс размера", 990)
+fraud[15].MouseButton1Click:Connect(function()
+    local hum = LP.Character and LP.Character:FindFirstChild("Humanoid")
+    if hum then
+        pcall(function() hum.BodyDepthScale.Value = 1 end)
+        pcall(function() hum.BodyHeightScale.Value = 1 end)
+        pcall(function() hum.BodyWidthScale.Value = 1 end)
+    end
+end)
+
+-- 16. крутилка
+fraud[16] = addJunk(frame, "🌀 Крутилка (spun)", 1040)
+fraud[16].MouseButton1Click:Connect(function()
+    local root = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    for i = 1, 60 do
+        root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(30), 0)
+        task.wait(0.02)
+    end
+end)
+
+-- 17. прыжок в космос
+fraud[17] = addJunk(frame, "🚀 Прыжок в космос", 1090)
+fraud[17].MouseButton1Click:Connect(function()
+    local root = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+    if root then root.CFrame = root.CFrame + Vector3.new(0, 500, 0) end
+end)
+
+-- 18. стоп
+fraud[18] = addJunk(frame, "✋ Стоп движение", 1140)
+fraud[18].MouseButton1Click:Connect(function()
+    local hum = LP.Character and LP.Character:FindFirstChild("Humanoid")
+    if hum then hum.WalkSpeed = 0 end
+end)
+
+-- 19. показать фпс
+fraud[19] = addJunk(frame, "📊 Показать фпс в чат", 1190)
+fraud[19].MouseButton1Click:Connect(function()
+    pcall(function()
+        local stats = game:GetService("Stats")
+        print("FPS примерно: " .. tostring(math.random(30, 200)))
+    end)
+end)
+
+-- 20. притвориться мертвым
+fraud[20] = addJunk(frame, "💀 Притвориться мёртвым", 1240)
+fraud[20].MouseButton1Click:Connect(function()
+    local hum = LP.Character and LP.Character:FindFirstChild("Humanoid")
+    if hum then pcall(function() hum.Health = 0 end) end
+end)
+
+-- 21. спам прыжками
+fraud[21] = addJunk(frame, "🦘 Спам прыжками", 1290)
+fraud[21].MouseButton1Click:Connect(function()
+    local hum = LP.Character and LP.Character:FindFirstChild("Humanoid")
+    if hum then
+        for i = 1, 20 do
+            hum:ChangeState(Enum.HumanoidStateType.Jumping)
+            task.wait(0.05)
+        end
+    end
+end)
+
+-- 22. отключить гравитацию
+fraud[22] = addJunk(frame, "🌌 Отключить гравитацию (себе)", 1340)
+fraud[22].MouseButton1Click:Connect(function()
+    workspace.Gravity = 0
+    task.delay(5, function() workspace.Gravity = 196.2 end)
+end)
+
+-- 23. красивый шлейф
+fraud[23] = addJunk(frame, "🌈 Шлейф за собой", 1390)
+fraud[23].MouseButton1Click:Connect(function()
+    local char = LP.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    local a = Instance.new("Attachment", root)
+    local trail = Instance.new("Trail", root)
+    trail.Attachment0 = a
+    trail.Attachment1 = a
+    trail.Color = ColorSequence.new(Color3.fromRGB(255,0,255), Color3.fromRGB(0,255,255))
+    trail.Lifetime = 1
+    task.delay(10, function() trail:Destroy(); a:Destroy() end)
+end)
+
+-- 24. удалить всех NPC
+fraud[24] = addJunk(frame, "☠️ Удалить всех NPC (визуально)", 1440)
+fraud[24].MouseButton1Click:Connect(function()
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Humanoid") and not Players:GetPlayerFromCharacter(obj.Parent) then
+            pcall(function() obj.Parent:Destroy() end)
+        end
+    end
+end)
+
+-- 25. перезайти
+fraud[25] = addJunk(frame, "🔄 Перезайти в игру", 1490)
+fraud[25].MouseButton1Click:Connect(function()
+    game:GetService("TeleportService"):Teleport(game.PlaceId, LP)
+end)
+
+-- ========== ФУНКЦИИ БИНДОВ ==========
+local function applySpeed()
+    local hum = LP.Character and LP.Character:FindFirstChild("Humanoid")
+    if hum then hum.WalkSpeed = enabled and speed or 16 end
+end
+
+local function setToggle(on)
+    enabled = on
+    toggleBtn.Text = on and "СКОРОСТЬ ON [Z] СКОРОСТЬ ON ON ON ON Z Z Z Z" or "СКОРОСТЬ OFF [Z] СКОРОСТЬ OFF OFF OFF OFF Z Z Z"
+    toggleBtn.BackgroundColor3 = on and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 100, 0)
+    toggleBtn.TextColor3 = on and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 0, 255)
+    applySpeed()
+end
+
+local function setNoclip(on)
+    noclip = on
+    noclipBtn.Text = on and "НОУКЛИП ON [X] НОУКЛИП ON ON ON X X X X X" or "НОУКЛИП OFF [X] НОУКЛИП OFF OFF OFF X X X X"
+    noclipBtn.BackgroundColor3 = on and Color3.fromRGB(255, 255, 0) or Color3.fromRGB(0, 0, 255)
+    noclipBtn.TextColor3 = on and Color3.fromRGB(0, 0, 0) or Color3.fromRGB(255, 255, 0)
+    if not on then
+        local char = LP.Character
+        if char then
+            for _, p in ipairs(char:GetDescendants()) do
+                if p:IsA("BasePart") then p.CanCollide = true end
+            end
+        end
+    end
+end
+
+toggleBtn.MouseButton1Click:Connect(function() setToggle(not enabled) end)
+noclipBtn.MouseButton1Click:Connect(function() setNoclip(not noclip) end)
+
+local dragging = false
+slider.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+    end
+end)
+UIS.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+UIS.InputChanged:Connect(function(i)
+    if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+        local rel = math.clamp((i.Position.X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X, 0, 1)
+        speed = math.floor(16 + rel * 484)
+        fill.Size = UDim2.new(rel, 0, 1, 0)
+        valLbl.Text = "Скорость: " .. speed .. " СКОРОСТЬ: " .. speed .. " Скорость " .. speed
+        applySpeed()
+    end
+end)
+
+RunService.Stepped:Connect(function()
+    if noclip then
+        local char = LP.Character
+        if char then
+            for _, p in ipairs(char:GetDescendants()) do
+                if p:IsA("BasePart") then p.CanCollide = false end
+            end
+        end
+    end
+end)
+
+UIS.InputBegan:Connect(function(i, gp)
+    if gp then return end
+    if i.KeyCode == Enum.KeyCode.Insert then frame.Visible = not frame.Visible end
+    if i.KeyCode == Enum.KeyCode.Z then setToggle(not enabled) end
+    if i.KeyCode == Enum.KeyCode.X then setNoclip(not noclip) end
+end)
+
+LP.CharacterAdded:Connect(function()
+    task.wait(0.3)
+    applySpeed()
+    if noclip then setNoclip(true) end
+end)
