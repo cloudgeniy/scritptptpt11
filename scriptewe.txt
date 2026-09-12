@@ -721,22 +721,23 @@ local function getTargetPart(partName)
                 if hum and hum.Health > 0 then
                     local part = p.Character:FindFirstChild(aimPartMap[partName] or "Head") or p.Character:FindFirstChild("HumanoidRootPart")
                     if part then
+                        local blocked = false
                         if S.aimWallCheck then
                             local ray = Ray.new(Camera.CFrame.Position, (part.Position - Camera.CFrame.Position).Unit * 1000)
                             local hit = workspace:FindPartOnRay(ray, LocalPlayer.Character)
                             if hit and not hit:IsDescendantOf(p.Character) then
-                                -- blocked by wall, skip
-                                goto continue
+                                blocked = true
                             end
                         end
-                        local pos, on = Camera:WorldToViewportPoint(part.Position)
-                        if on then
-                            local center = Camera.ViewportSize / 2
-                            local dx, dy = pos.X - center.X, pos.Y - center.Y
-                            local d = math.sqrt(dx*dx + dy*dy)
-                            if d < cd then cd = d; closest = part end
+                        if not blocked then
+                            local pos, on = Camera:WorldToViewportPoint(part.Position)
+                            if on then
+                                local center = Camera.ViewportSize / 2
+                                local dx, dy = pos.X - center.X, pos.Y - center.Y
+                                local d = math.sqrt(dx*dx + dy*dy)
+                                if d < cd then cd = d; closest = part end
+                            end
                         end
-                        ::continue::
                     end
                 end
             end
