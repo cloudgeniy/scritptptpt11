@@ -1,5 +1,5 @@
 --[[
-    CLOUD HUB v12.1 — MONOCHROME RTX
+    CLOUD HUB v13.0 — WORKING RTX
     Executor: Xeno
     Made by cloud ( малышочек )
 --]]
@@ -21,52 +21,48 @@ local playerGui = LocalPlayer:WaitForChild("PlayerGui")
 local S = {
     aimEnabled = false, aimPart = "Head", aimFOV = 120, aimSmooth = 0.3,
     aimCircle = false, aimWallCheck = false, aimTeamCheck = false,
-    silentAim = false, silentAimPart = "Head", silentAimMode = "Camera", silentWallCheck = false,
-    crosshairEnabled = false, crosshairSize = 10, crosshairStyle = "Cross",
-    autoFire = false, autoFireRate = 100, autoParry = false,
+    silentAim = false, silentAimPart = "Head", silentWallCheck = false,
+    crosshairEnabled = false, crosshairSize = 10,
+    autoFire = false, autoFireRate = 100,
     espEnabled = false, espType = "Highlight", espTransparency = 0.55,
-    espNames = false, nameStyle = "Minimal", espTracers = false,
-    espColorPreset = "White", espCustomColor = Color3.fromRGB(255,255,255),
-    espTeamCheck = false, espDistanceLimit = 500,
-    chamsStyle = "Always", healthBarESP = false, boxStyle = "2D",
-    headDot = false, skeletonThickness = 1.5, tracerOrigin = "Bottom",
+    espNames = false, espTracers = false,
+    espColorPreset = "White", espTeamCheck = false,
+    healthBarESP = false, headDot = false, skeletonThickness = 1.5, tracerOrigin = "Bottom",
     rainbowSpeed = 1,
     xrayEnabled = false, xrayTransparency = 0.7,
     fullbrightEnabled = false, fullbrightLevel = 3,
     fogEnabled = false, fogEnd = 500,
     timeOfDay = -1, skyboxPreset = "Default",
-    ambientColor = nil, outdoorAmbient = nil,
-    bloomEnabled = false, colorCorrectionEnabled = false,
-    atmosphereDensity = 0.3, neonGlow = false, depthOfField = false,
-    skyRTX = false, vignette = false, cinematicBars = false,
-    chromaticAberration = false, motionBlur = false,
-    sunRays = false, rainEffect = false, snowEffect = false,
-    filmGrain = false, bloomIntensity = 1,
-    showFps = true, showPing = true, showClock = true, showPlayerList = false,
-    flyEnabled = false, flySpeed = 80, flyMode = "Velocity",
+    bloomEnabled = false, bloomIntensity = 2,
+    colorCorrectionEnabled = false,
+    depthOfField = false, sunRays = false,
+    cinematicBars = false, vignette = false,
+    motionBlur = false, filmGrain = false,
+    rtxMode = false,
+    flyEnabled = false, flySpeed = 80, fastFlyRage = false,
     speedEnabled = false, speedValue = 40,
     jumpEnabled = false, jumpValue = 120,
     infJumpEnabled = false, bunnyHop = false, autoJump = false,
     gravityEnabled = false, gravityValue = 100,
     sizeEnabled = false, sizeValue = 1,
     antiFling = false, ctrlSpeed = false, ctrlSpeedValue = 80,
-    noFallDamage = false, sprintToggle = false,
+    noFallDamage = false,
     noclipEnabled = false, hitboxEnabled = false, hitboxSize = 5,
     fovEnabled = false, fovValue = 90,
     zoomEnabled = false, zoomValue = 30,
     antiAfk = false, chatSpam = false, chatSpamText = "Cloud Hub on top", chatSpamDelay = 5,
-    clickTp = false, autoRespawn = false,
-    fpsUnlocker = false, antiVoid = false, antiKick = false,
+    clickTp = false, antiVoid = false,
     butterfly = false, butterflySpeed = 30,
     aaJitter = false, jitterSpeed = 10,
     desync = false, rapidFire = false, autoBlock = false,
-    feather = false, fastFlyRage = false, spinReverse = false,
-    uiScale = 1, uiOpacity = 0.12, uiAccentPreset = "White",
+    feather = false, spinReverse = false,
+    uiOpacity = 0.12, uiAccentPreset = "White",
     uiBgColor = Color3.fromRGB(8, 8, 11),
     uiCardColor = Color3.fromRGB(18, 18, 24),
     uiAccentColor = Color3.fromRGB(255, 255, 255),
     uiTextColor = Color3.fromRGB(225, 225, 230),
     watermarkEnabled = true, hudEnabled = true, guiVisible = true,
+    showPlayerList = false,
 }
 
 local unloaded = false
@@ -86,13 +82,6 @@ local origCamMax = LocalPlayer.CameraMaxZoomDistance
 local origClockTime = Lighting.ClockTime
 
 local C = {
-    bg = Color3.fromRGB(8, 8, 11),
-    card = Color3.fromRGB(18, 18, 24),
-    cardHover = Color3.fromRGB(24, 24, 32),
-    border = Color3.fromRGB(255, 255, 255),
-    text = Color3.fromRGB(225, 225, 230),
-    muted = Color3.fromRGB(160, 160, 171),
-    accent = Color3.fromRGB(255, 255, 255),
     danger = Color3.fromRGB(200, 50, 50),
 }
 
@@ -103,20 +92,19 @@ local function applyTheme()
 end
 
 local function getESPColor()
-    local preset = S.espColorPreset
-    if preset == "White"  then return Color3.fromRGB(255,255,255) end
-    if preset == "Red"    then return Color3.fromRGB(255,60,60) end
-    if preset == "Green"  then return Color3.fromRGB(60,255,60) end
-    if preset == "Blue"   then return Color3.fromRGB(60,140,255) end
-    if preset == "Purple" then return Color3.fromRGB(190,90,255) end
-    if preset == "Cyan"   then return Color3.fromRGB(60,255,255) end
-    if preset == "Yellow" then return Color3.fromRGB(255,220,60) end
-    if preset == "Pink"   then return Color3.fromRGB(255,120,200) end
-    if preset == "Rainbow" then
-        local t = tick() * S.rainbowSpeed
-        return Color3.fromHSV((t * 0.5) % 1, 1, 1)
+    local p = S.espColorPreset
+    if p == "White" then return Color3.fromRGB(255,255,255) end
+    if p == "Red" then return Color3.fromRGB(255,60,60) end
+    if p == "Green" then return Color3.fromRGB(60,255,60) end
+    if p == "Blue" then return Color3.fromRGB(60,140,255) end
+    if p == "Purple" then return Color3.fromRGB(190,90,255) end
+    if p == "Cyan" then return Color3.fromRGB(60,255,255) end
+    if p == "Yellow" then return Color3.fromRGB(255,220,60) end
+    if p == "Pink" then return Color3.fromRGB(255,120,200) end
+    if p == "Rainbow" then
+        return Color3.fromHSV((tick() * S.rainbowSpeed * 0.3) % 1, 1, 1)
     end
-    return S.espCustomColor
+    return Color3.fromRGB(255,255,255)
 end
 
 local Drawing = Drawing or nil
@@ -153,70 +141,63 @@ end
 
 -- SPLASH
 do
-    local splashGui = Instance.new("ScreenGui")
-    splashGui.Name = "CloudSplash"
-    splashGui.ResetOnSpawn = false
-    splashGui.IgnoreGuiInset = true
-    splashGui.DisplayOrder = 999
-    splashGui.Parent = playerGui
+    local sg = Instance.new("ScreenGui")
+    sg.Name = "CloudSplash"
+    sg.ResetOnSpawn = false
+    sg.IgnoreGuiInset = true
+    sg.DisplayOrder = 999
+    sg.Parent = playerGui
 
-    local splash = Instance.new("Frame")
-    splash.Size = UDim2.new(1, 0, 1, 0)
-    splash.BackgroundColor3 = Color3.fromRGB(4, 4, 6)
-    splash.BorderSizePixel = 0
-    splash.Parent = splashGui
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.fromRGB(4, 4, 6)
+    bg.BorderSizePixel = 0
+    bg.Parent = sg
 
-    local brandContainer = Instance.new("Frame")
-    brandContainer.Size = UDim2.new(1, 0, 0, 110)
-    brandContainer.Position = UDim2.new(0, 0, 0.5, -55)
-    brandContainer.BackgroundTransparency = 1
-    brandContainer.Parent = splash
+    local t = Instance.new("TextLabel")
+    t.Size = UDim2.new(1, 0, 0, 55)
+    t.Position = UDim2.new(0, 0, 0.5, -55)
+    t.BackgroundTransparency = 1
+    t.Text = "CLOUD HUB"
+    t.TextColor3 = Color3.fromRGB(248, 250, 252)
+    t.Font = Enum.Font.GothamBold
+    t.TextSize = 40
+    t.TextTransparency = 1
+    t.Parent = bg
 
-    local splashTitle = Instance.new("TextLabel")
-    splashTitle.Size = UDim2.new(1, 0, 0, 55)
-    splashTitle.BackgroundTransparency = 1
-    splashTitle.Text = "CLOUD HUB"
-    splashTitle.TextColor3 = Color3.fromRGB(248, 250, 252)
-    splashTitle.Font = Enum.Font.GothamBold
-    splashTitle.TextSize = 40
-    splashTitle.TextTransparency = 1
-    splashTitle.Parent = brandContainer
+    local s = Instance.new("TextLabel")
+    s.Size = UDim2.new(1, 0, 0, 20)
+    s.Position = UDim2.new(0, 0, 0.5, 10)
+    s.BackgroundTransparency = 1
+    s.Text = "made by cloud ( малышочек )"
+    s.TextColor3 = Color3.fromRGB(148, 163, 184)
+    s.Font = Enum.Font.Gotham
+    s.TextSize = 11
+    s.TextTransparency = 1
+    s.Parent = bg
 
-    TweenService:Create(splashTitle, TweenInfo.new(1.2, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
-
-    local subText = Instance.new("TextLabel")
-    subText.Size = UDim2.new(1, 0, 0, 20)
-    subText.Position = UDim2.new(0, 0, 0, 65)
-    subText.BackgroundTransparency = 1
-    subText.Text = "made by cloud ( малышочек )"
-    subText.TextColor3 = Color3.fromRGB(148, 163, 184)
-    subText.Font = Enum.Font.Gotham
-    subText.TextSize = 11
-    subText.TextTransparency = 1
-    subText.Parent = brandContainer
-
+    TweenService:Create(t, TweenInfo.new(1.2, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
     task.delay(0.6, function()
-        TweenService:Create(subText, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+        TweenService:Create(s, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
     end)
-
     task.delay(2.2, function()
-        TweenService:Create(splash, TweenInfo.new(0.7), {BackgroundTransparency = 1}):Play()
-        TweenService:Create(splashTitle, TweenInfo.new(0.7), {TextTransparency = 1}):Play()
-        TweenService:Create(subText, TweenInfo.new(0.7), {TextTransparency = 1}):Play()
+        TweenService:Create(bg, TweenInfo.new(0.7), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(t, TweenInfo.new(0.7), {TextTransparency = 1}):Play()
+        TweenService:Create(s, TweenInfo.new(0.7), {TextTransparency = 1}):Play()
         task.wait(0.7)
-        splashGui:Destroy()
+        sg:Destroy()
     end)
 end
 
 -- WATERMARK
 local wmFps, wmPing, wmTime, wmFrame
 do
-    local wmGui = Instance.new("ScreenGui")
-    wmGui.Name = "CloudWatermark"
-    wmGui.ResetOnSpawn = false
-    wmGui.IgnoreGuiInset = true
-    wmGui.DisplayOrder = 100
-    wmGui.Parent = playerGui
+    local wg = Instance.new("ScreenGui")
+    wg.Name = "CloudWatermark"
+    wg.ResetOnSpawn = false
+    wg.IgnoreGuiInset = true
+    wg.DisplayOrder = 100
+    wg.Parent = playerGui
 
     wmFrame = Instance.new("Frame")
     wmFrame.AnchorPoint = Vector2.new(0.5, 0)
@@ -227,97 +208,94 @@ do
     wmFrame.BackgroundTransparency = 0.18
     wmFrame.BorderSizePixel = 0
     wmFrame.Visible = S.watermarkEnabled
-    wmFrame.Parent = wmGui
+    wmFrame.Parent = wg
 
-    local wmC = Instance.new("UICorner"); wmC.CornerRadius = UDim.new(0, 8); wmC.Parent = wmFrame
-    local wmS = Instance.new("UIStroke")
-    wmS.Color = C.border; wmS.Thickness = 1; wmS.Transparency = 0.85
-    wmS.Parent = wmFrame
+    local c = Instance.new("UICorner"); c.CornerRadius = UDim.new(0, 8); c.Parent = wmFrame
+    local s = Instance.new("UIStroke")
+    s.Color = S.uiAccentColor; s.Thickness = 1; s.Transparency = 0.85
+    s.Parent = wmFrame
+    local p = Instance.new("UIPadding")
+    p.PaddingLeft = UDim.new(0, 14); p.PaddingRight = UDim.new(0, 14)
+    p.Parent = wmFrame
+    local l = Instance.new("UIListLayout")
+    l.FillDirection = Enum.FillDirection.Horizontal
+    l.VerticalAlignment = Enum.VerticalAlignment.Center
+    l.Padding = UDim.new(0, 10)
+    l.SortOrder = Enum.SortOrder.LayoutOrder
+    l.Parent = wmFrame
 
-    local wmPad = Instance.new("UIPadding")
-    wmPad.PaddingLeft = UDim.new(0, 14); wmPad.PaddingRight = UDim.new(0, 14)
-    wmPad.Parent = wmFrame
-
-    local wmLayout = Instance.new("UIListLayout")
-    wmLayout.FillDirection = Enum.FillDirection.Horizontal
-    wmLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-    wmLayout.Padding = UDim.new(0, 10)
-    wmLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    wmLayout.Parent = wmFrame
-
-    local function wmLabel(text, color, bold, order, size, mono)
-        local l = Instance.new("TextLabel")
-        l.BackgroundTransparency = 1
-        l.AutomaticSize = Enum.AutomaticSize.X
-        l.Size = UDim2.new(0, 0, 1, 0)
-        l.Font = mono and Enum.Font.Code or (bold and Enum.Font.GothamBold or Enum.Font.Gotham)
-        l.TextSize = size or 11
-        l.TextColor3 = color
-        l.Text = text
-        l.LayoutOrder = order
-        l.Parent = wmFrame
-        return l
+    local function lbl(text, color, bold, order, size, mono)
+        local x = Instance.new("TextLabel")
+        x.BackgroundTransparency = 1
+        x.AutomaticSize = Enum.AutomaticSize.X
+        x.Size = UDim2.new(0, 0, 1, 0)
+        x.Font = mono and Enum.Font.Code or (bold and Enum.Font.GothamBold or Enum.Font.Gotham)
+        x.TextSize = size or 11
+        x.TextColor3 = color
+        x.Text = text
+        x.LayoutOrder = order
+        x.Parent = wmFrame
+        return x
     end
-
-    local function wmDiv(order)
+    local function div(order)
         local d = Instance.new("Frame")
         d.Size = UDim2.new(0, 1, 0, 12)
-        d.BackgroundColor3 = C.border
+        d.BackgroundColor3 = S.uiAccentColor
         d.BackgroundTransparency = 0.85
         d.BorderSizePixel = 0
         d.LayoutOrder = order
         d.Parent = wmFrame
     end
 
-    wmLabel("☁", C.accent, true, 1, 14)
-    wmLabel("CLOUD HUB", C.accent, true, 2, 11)
-    wmDiv(3)
-    wmLabel(LocalPlayer.Name, C.muted, false, 4, 11)
-    wmDiv(5)
-    wmPing = wmLabel("0ms", C.text, true, 6, 11, true)
-    wmDiv(7)
-    wmFps = wmLabel("0fps", C.text, true, 8, 11, true)
-    wmDiv(9)
-    wmTime = wmLabel("00:00:00", C.text, true, 10, 11, true)
+    lbl("☁", S.uiAccentColor, true, 1, 14)
+    lbl("CLOUD HUB", S.uiAccentColor, true, 2, 11)
+    div(3)
+    lbl(LocalPlayer.Name, Color3.fromRGB(160,160,171), false, 4, 11)
+    div(5)
+    wmPing = lbl("0ms", S.uiTextColor, true, 6, 11, true)
+    div(7)
+    wmFps = lbl("0fps", S.uiTextColor, true, 8, 11, true)
+    div(9)
+    wmTime = lbl("00:00:00", S.uiTextColor, true, 10, 11, true)
 
     registerTheme(function()
         wmFrame.BackgroundColor3 = S.uiBgColor
-        wmS.Color = S.uiAccentColor
+        s.Color = S.uiAccentColor
         for _, ch in ipairs(wmFrame:GetChildren()) do
-            if ch:IsA("TextLabel") then
-                if ch.Text == "CLOUD HUB" or ch.Text == "☁" then ch.TextColor3 = S.uiAccentColor end
+            if ch:IsA("TextLabel") and (ch.Text == "CLOUD HUB" or ch.Text == "☁") then
+                ch.TextColor3 = S.uiAccentColor
             elseif ch:IsA("Frame") then
                 ch.BackgroundColor3 = S.uiAccentColor
             end
         end
     end)
 
-    local wmDrag, wmStart, wmPos = false, nil, nil
+    local d1, d2, s1, s2 = false, nil, nil, nil
     track(wmFrame.InputBegan:Connect(function(i)
         if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
-            wmDrag = true; wmStart = i.Position; wmPos = wmFrame.Position
+            d1 = true; s1 = i.Position; s2 = wmFrame.Position
         end
     end))
     track(UserInputService.InputChanged:Connect(function(i)
-        if wmDrag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
-            local d = i.Position - wmStart
-            wmFrame.Position = UDim2.new(wmPos.X.Scale, wmPos.X.Offset + d.X, wmPos.Y.Scale, wmPos.Y.Offset + d.Y)
+        if d1 and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+            local dd = i.Position - s1
+            wmFrame.Position = UDim2.new(s2.X.Scale, s2.X.Offset + dd.X, s2.Y.Scale, s2.Y.Offset + dd.Y)
         end
     end))
     track(UserInputService.InputEnded:Connect(function(i)
-        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then wmDrag = false end
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then d1 = false end
     end))
 end
 
 -- HUD
 local hudContainer
 do
-    local hudGui = Instance.new("ScreenGui")
-    hudGui.Name = "CloudHUD"
-    hudGui.ResetOnSpawn = false
-    hudGui.IgnoreGuiInset = true
-    hudGui.DisplayOrder = 95
-    hudGui.Parent = playerGui
+    local hg = Instance.new("ScreenGui")
+    hg.Name = "CloudHUD"
+    hg.ResetOnSpawn = false
+    hg.IgnoreGuiInset = true
+    hg.DisplayOrder = 95
+    hg.Parent = playerGui
 
     hudContainer = Instance.new("Frame")
     hudContainer.AnchorPoint = Vector2.new(1, 0)
@@ -328,44 +306,44 @@ do
     hudContainer.BackgroundTransparency = 0.18
     hudContainer.BorderSizePixel = 0
     hudContainer.Visible = S.hudEnabled
-    hudContainer.Parent = hudGui
+    hudContainer.Parent = hg
 
-    local hudC = Instance.new("UICorner"); hudC.CornerRadius = UDim.new(0, 8); hudC.Parent = hudContainer
-    local hudS = Instance.new("UIStroke")
-    hudS.Color = C.border; hudS.Thickness = 1; hudS.Transparency = 0.85
-    hudS.Parent = hudContainer
-    local hudPad = Instance.new("UIPadding")
-    hudPad.PaddingTop = UDim.new(0, 8); hudPad.PaddingBottom = UDim.new(0, 8)
-    hudPad.PaddingLeft = UDim.new(0, 10); hudPad.PaddingRight = UDim.new(0, 10)
-    hudPad.Parent = hudContainer
-    local hudLayout = Instance.new("UIListLayout")
-    hudLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    hudLayout.Padding = UDim.new(0, 4)
-    hudLayout.Parent = hudContainer
+    local c = Instance.new("UICorner"); c.CornerRadius = UDim.new(0, 8); c.Parent = hudContainer
+    local s = Instance.new("UIStroke")
+    s.Color = S.uiAccentColor; s.Thickness = 1; s.Transparency = 0.85
+    s.Parent = hudContainer
+    local p = Instance.new("UIPadding")
+    p.PaddingTop = UDim.new(0, 8); p.PaddingBottom = UDim.new(0, 8)
+    p.PaddingLeft = UDim.new(0, 10); p.PaddingRight = UDim.new(0, 10)
+    p.Parent = hudContainer
+    local l = Instance.new("UIListLayout")
+    l.SortOrder = Enum.SortOrder.LayoutOrder
+    l.Padding = UDim.new(0, 4)
+    l.Parent = hudContainer
 
-    local hudHeader = Instance.new("Frame")
-    hudHeader.Size = UDim2.new(1, 0, 0, 18)
-    hudHeader.BackgroundTransparency = 1
-    hudHeader.LayoutOrder = 1
-    hudHeader.Parent = hudContainer
+    local hh = Instance.new("Frame")
+    hh.Size = UDim2.new(1, 0, 0, 18)
+    hh.BackgroundTransparency = 1
+    hh.LayoutOrder = 1
+    hh.Parent = hudContainer
 
-    local hudTitle = Instance.new("TextLabel")
-    hudTitle.Size = UDim2.new(1, 0, 1, 0)
-    hudTitle.BackgroundTransparency = 1
-    hudTitle.Text = "KEYBINDS"
-    hudTitle.TextColor3 = C.muted
-    hudTitle.Font = Enum.Font.GothamBold
-    hudTitle.TextSize = 10
-    hudTitle.TextXAlignment = Enum.TextXAlignment.Left
-    hudTitle.Parent = hudHeader
+    local ht = Instance.new("TextLabel")
+    ht.Size = UDim2.new(1, 0, 1, 0)
+    ht.BackgroundTransparency = 1
+    ht.Text = "KEYBINDS"
+    ht.TextColor3 = Color3.fromRGB(160,160,171)
+    ht.Font = Enum.Font.GothamBold
+    ht.TextSize = 10
+    ht.TextXAlignment = Enum.TextXAlignment.Left
+    ht.Parent = hh
 
-    local hudDiv = Instance.new("Frame")
-    hudDiv.Size = UDim2.new(1, 0, 0, 1)
-    hudDiv.BackgroundColor3 = C.border
-    hudDiv.BackgroundTransparency = 0.9
-    hudDiv.BorderSizePixel = 0
-    hudDiv.LayoutOrder = 2
-    hudDiv.Parent = hudContainer
+    local hd = Instance.new("Frame")
+    hd.Size = UDim2.new(1, 0, 0, 1)
+    hd.BackgroundColor3 = S.uiAccentColor
+    hd.BackgroundTransparency = 0.9
+    hd.BorderSizePixel = 0
+    hd.LayoutOrder = 2
+    hd.Parent = hudContainer
 
     local function addBind(name, key)
         local row = Instance.new("Frame")
@@ -373,29 +351,26 @@ do
         row.BackgroundTransparency = 1
         row.LayoutOrder = 100
         row.Parent = hudContainer
-
         local n = Instance.new("TextLabel")
         n.Size = UDim2.new(0.6, 0, 1, 0)
         n.BackgroundTransparency = 1
         n.Text = name
-        n.TextColor3 = C.muted
+        n.TextColor3 = Color3.fromRGB(160,160,171)
         n.Font = Enum.Font.Gotham
         n.TextSize = 11
         n.TextXAlignment = Enum.TextXAlignment.Left
         n.Parent = row
-
         local k = Instance.new("TextLabel")
         k.Size = UDim2.new(0.4, 0, 1, 0)
         k.Position = UDim2.new(0.6, 0, 0, 0)
         k.BackgroundTransparency = 1
         k.Text = key
-        k.TextColor3 = C.text
+        k.TextColor3 = S.uiTextColor
         k.Font = Enum.Font.Code
         k.TextSize = 10
         k.TextXAlignment = Enum.TextXAlignment.Right
         k.Parent = row
     end
-
     addBind("Aimbot", "[MB2]")
     addBind("Fly", "[G]")
     addBind("NoClip", "[V]")
@@ -403,36 +378,37 @@ do
 
     registerTheme(function()
         hudContainer.BackgroundColor3 = S.uiBgColor
-        hudS.Color = S.uiAccentColor
+        s.Color = S.uiAccentColor
+        hd.BackgroundColor3 = S.uiAccentColor
     end)
 
-    local hudDrag, hudStart, hudPos = false, nil, nil
-    track(hudHeader.InputBegan:Connect(function(i)
+    local d1, d2, s1, s2 = false, nil, nil, nil
+    track(hh.InputBegan:Connect(function(i)
         if i.UserInputType == Enum.UserInputType.MouseButton1 then
-            hudDrag = true; hudStart = i.Position; hudPos = hudContainer.Position
+            d1 = true; s1 = i.Position; s2 = hudContainer.Position
         end
     end))
     track(UserInputService.InputChanged:Connect(function(i)
-        if hudDrag and i.UserInputType == Enum.UserInputType.MouseMovement then
-            local d = i.Position - hudStart
-            hudContainer.Position = UDim2.new(hudPos.X.Scale, hudPos.X.Offset + d.X, hudPos.Y.Scale, hudPos.Y.Offset + d.Y)
+        if d1 and i.UserInputType == Enum.UserInputType.MouseMovement then
+            local dd = i.Position - s1
+            hudContainer.Position = UDim2.new(s2.X.Scale, s2.X.Offset + dd.X, s2.Y.Scale, s2.Y.Offset + dd.Y)
         end
     end))
     track(UserInputService.InputEnded:Connect(function(i)
-        if i.UserInputType == Enum.UserInputType.MouseButton1 then hudDrag = false end
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then d1 = false end
     end))
 end
 
 -- WM STATS
 do
-    local fpsCount, fpsTimer, fpsVal = 0, tick(), 0
+    local fc, ft, fv = 0, tick(), 0
     track(RunService.RenderStepped:Connect(function()
         if unloaded then return end
-        fpsCount = fpsCount + 1
-        if tick() - fpsTimer >= 1 then fpsVal = fpsCount; fpsCount = 0; fpsTimer = tick() end
+        fc = fc + 1
+        if tick() - ft >= 1 then fv = fc; fc = 0; ft = tick() end
         local ping = 0
         pcall(function() ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue()) end)
-        if wmFps then wmFps.Text = fpsVal .. "fps" end
+        if wmFps then wmFps.Text = fv .. "fps" end
         if wmPing then wmPing.Text = ping .. "ms" end
         if wmTime then wmTime.Text = os.date("%H:%M:%S") end
     end))
@@ -449,13 +425,6 @@ local function clearESP()
         for _, l in pairs(lines) do pcall(function() l:Remove() end) end
     end
     highlights, nameTags, boxes, skeletonDrawings, healthBars, headDots = {}, {}, {}, {}, {}, {}
-end
-
-local function styleNameTag(lab)
-    lab.TextColor3 = C.text
-    lab.TextStrokeTransparency = 0.4
-    if S.nameStyle == "HP Bar" then lab.TextStrokeTransparency = 0.2
-    elseif S.nameStyle == "Full Info" then lab.TextStrokeTransparency = 0.1 end
 end
 
 local function applyESP(player)
@@ -508,12 +477,13 @@ local function applyESP(player)
         local lab = Instance.new("TextLabel")
         lab.Size = UDim2.new(1, 0, 1, 0)
         lab.BackgroundTransparency = 1
+        lab.TextColor3 = S.uiTextColor
+        lab.TextStrokeTransparency = 0.4
         lab.Font = Enum.Font.GothamBold
         lab.TextSize = 12
         lab.Text = player.Name
         lab.Parent = bill
         bill.Parent = char; nameTags[player] = bill
-        styleNameTag(lab)
     end
     if S.headDot then
         local dot = Instance.new("BillboardGui")
@@ -567,40 +537,40 @@ local function drawSkeleton(player, lines)
     end
     local head = char:FindFirstChild("Head")
     local root = char:FindFirstChild("HumanoidRootPart")
-    local upperTorso = char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
-    local lowerTorso = char:FindFirstChild("LowerTorso")
-    local lArm = char:FindFirstChild("LeftUpperArm") or char:FindFirstChild("Left Arm")
-    local rArm = char:FindFirstChild("RightUpperArm") or char:FindFirstChild("Right Arm")
-    local lLeg = char:FindFirstChild("LeftUpperLeg") or char:FindFirstChild("Left Leg")
-    local rLeg = char:FindFirstChild("RightUpperLeg") or char:FindFirstChild("Right Leg")
-    local lFoot = char:FindFirstChild("LeftFoot") or char:FindFirstChild("Left Leg")
-    local rFoot = char:FindFirstChild("RightFoot") or char:FindFirstChild("Right Leg")
+    local ut = char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
+    local lt = char:FindFirstChild("LowerTorso")
+    local la = char:FindFirstChild("LeftUpperArm") or char:FindFirstChild("Left Arm")
+    local ra = char:FindFirstChild("RightUpperArm") or char:FindFirstChild("Right Arm")
+    local ll = char:FindFirstChild("LeftUpperLeg") or char:FindFirstChild("Left Leg")
+    local rl = char:FindFirstChild("RightUpperLeg") or char:FindFirstChild("Right Leg")
+    local lf = char:FindFirstChild("LeftFoot") or char:FindFirstChild("Left Leg")
+    local rf = char:FindFirstChild("RightFoot") or char:FindFirstChild("Right Leg")
     if not (head and root) then
         for _, l in ipairs(lines) do l.Visible = false end
         return
     end
-    local headP = head.Position
-    local torsoP = upperTorso and upperTorso.Position or root.Position
-    local lowerP = lowerTorso and lowerTorso.Position or root.Position
-    local neckP = Vector3.new(headP.X, torsoP.Y, torsoP.Z)
-    local function toScreen(pos)
-        local v, on = Camera:WorldToViewportPoint(pos)
+    local hP = head.Position
+    local tP = ut and ut.Position or root.Position
+    local lP = lt and lt.Position or root.Position
+    local nP = Vector3.new(hP.X, tP.Y, tP.Z)
+    local function scr(p)
+        local v, on = Camera:WorldToViewportPoint(p)
         if on and v.Z > 0 then return Vector2.new(v.X, v.Y) end
         return nil
     end
-    local conn = {
-        {headP, neckP}, {neckP, torsoP},
-        {torsoP, lArm and lArm.Position or torsoP},
-        {torsoP, rArm and rArm.Position or torsoP},
-        {torsoP, lowerP},
-        {lowerP, lLeg and lLeg.Position or lowerP},
-        {lowerP, rLeg and rLeg.Position or lowerP},
-        {lLeg and lLeg.Position or lowerP, lFoot and lFoot.Position or lowerP},
-        {rLeg and rLeg.Position or lowerP, rFoot and rFoot.Position or lowerP},
-        {torsoP, root.Position},
+    local cn = {
+        {hP, nP}, {nP, tP},
+        {tP, la and la.Position or tP},
+        {tP, ra and ra.Position or tP},
+        {tP, lP},
+        {lP, ll and ll.Position or lP},
+        {lP, rl and rl.Position or lP},
+        {ll and ll.Position or lP, lf and lf.Position or lP},
+        {rl and rl.Position or lP, rf and rf.Position or lP},
+        {tP, root.Position},
     }
-    for i, c in ipairs(conn) do
-        local a = toScreen(c[1]); local b = toScreen(c[2])
+    for i, c in ipairs(cn) do
+        local a = scr(c[1]); local b = scr(c[2])
         if a and b and lines[i] then
             lines[i].From = a; lines[i].To = b; lines[i].Visible = true
         elseif lines[i] then
@@ -654,8 +624,7 @@ local function updateTracers()
     local origin
     if S.tracerOrigin == "Bottom" then origin = Vector2.new(vp.X/2, vp.Y)
     elseif S.tracerOrigin == "Center" then origin = Vector2.new(vp.X/2, vp.Y/2)
-    elseif S.tracerOrigin == "Top" then origin = Vector2.new(vp.X/2, 0)
-    else origin = Vector2.new(vp.X/2, vp.Y/2) end
+    else origin = Vector2.new(vp.X/2, 0) end
     local active = {}
     local col = getESPColor()
     for _, p in ipairs(Players:GetPlayers()) do
@@ -711,9 +680,7 @@ local function getTargetPart(partName)
                         if S.aimWallCheck then
                             local ray = Ray.new(Camera.CFrame.Position, (part.Position - Camera.CFrame.Position).Unit * 1000)
                             local hit = workspace:FindPartOnRay(ray, LocalPlayer.Character)
-                            if hit and not hit:IsDescendantOf(p.Character) then
-                                blocked = true
-                            end
+                            if hit and not hit:IsDescendantOf(p.Character) then blocked = true end
                         end
                         if not blocked then
                             local pos, on = Camera:WorldToViewportPoint(part.Position)
@@ -781,20 +748,17 @@ local function doAimbot()
     end
 end
 
-local lastAutoFire = 0
+local lastAF = 0
 local function doAutoFire()
     if unloaded or not S.autoFire then return end
-    if tick() - lastAutoFire < (S.autoFireRate / 1000) then return end
+    if tick() - lastAF < (S.autoFireRate / 1000) then return end
     local t = getTargetPart(S.aimPart)
     if not t then return end
-    lastAutoFire = tick()
+    lastAF = tick()
     pcall(function()
         local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
-        if tool then
-            tool:Activate()
-        else
-            VirtualUser:ClickButton1(Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2))
-        end
+        if tool then tool:Activate()
+        else VirtualUser:ClickButton1(Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)) end
     end)
 end
 
@@ -886,7 +850,6 @@ local function startBunnyHop()
         end
     end))
 end
-
 local ajCon
 local function startAutoJump()
     if ajCon then ajCon:Disconnect() end
@@ -896,7 +859,6 @@ local function startAutoJump()
         if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
     end))
 end
-
 local ijCon
 local function startInfJump()
     if ijCon then ijCon:Disconnect() end
@@ -906,7 +868,6 @@ local function startInfJump()
         if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
     end))
 end
-
 local afCon
 local function startAntiFling()
     if afCon then afCon:Disconnect() end
@@ -922,16 +883,13 @@ local function startAntiFling()
         end
     end))
 end
-
 local avCon
 local function startAntiVoid()
     if avCon then avCon:Disconnect() end
     avCon = track(RunService.Heartbeat:Connect(function()
         if unloaded or not S.antiVoid then return end
         local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if root and root.Position.Y < -50 then
-            root.CFrame = CFrame.new(0, 50, 0)
-        end
+        if root and root.Position.Y < -50 then root.CFrame = CFrame.new(0, 50, 0) end
     end))
 end
 
@@ -958,9 +916,7 @@ local function stopNoClip()
         end
     end
 end
-local function toggleNoClip()
-    if S.noclipEnabled then startNoClip() else stopNoClip() end
-end
+local function toggleNoClip() if S.noclipEnabled then startNoClip() else stopNoClip() end end
 
 local hbCon, origSizes = nil, {}
 local function startHitbox()
@@ -1010,10 +966,10 @@ local function applyWorld()
         Lighting.FogEnd = origFogEnd
         Lighting.FogStart = origFogStart
     end
-    if S.fogEnabled then Lighting.FogEnd = S.fogEnd end
+    if S.fogEnabled then
+        Lighting.FogEnd = S.fogEnd
+    end
     if S.timeOfDay >= 0 then Lighting.ClockTime = S.timeOfDay end
-    if S.ambientColor then Lighting.Ambient = S.ambientColor end
-    if S.outdoorAmbient then Lighting.OutdoorAmbient = S.outdoorAmbient end
 end
 
 local function applySkybox()
@@ -1023,18 +979,19 @@ local function applySkybox()
     if S.skyboxPreset == "Default" then return end
     local sky = Instance.new("Sky")
     sky.Parent = Lighting
+    -- рабочие ассеты:
     if S.skyboxPreset == "RTX Blue" then
         sky.SkyboxBk = "rbxassetid://159454299"; sky.SkyboxDn = "rbxassetid://159454296"
         sky.SkyboxFt = "rbxassetid://159454293"; sky.SkyboxLf = "rbxassetid://159454286"
         sky.SkyboxRt = "rbxassetid://159454300"; sky.SkyboxUp = "rbxassetid://159454288"
-    elseif S.skyboxPreset == "RTX Sunset" then
-        sky.SkyboxBk = "rbxassetid://271880665"; sky.SkyboxDn = "rbxassetid://271880683"
-        sky.SkyboxFt = "rbxassetid://271880730"; sky.SkyboxLf = "rbxassetid://271880750"
-        sky.SkyboxRt = "rbxassetid://271880777"; sky.SkyboxUp = "rbxassetid://271880797"
-    elseif S.skyboxPreset == "RTX Night" then
-        sky.SkyboxBk = "rbxassetid://135080413"; sky.SkyboxDn = "rbxassetid://135080413"
-        sky.SkyboxFt = "rbxassetid://135080413"; sky.SkyboxLf = "rbxassetid://135080413"
-        sky.SkyboxRt = "rbxassetid://135080413"; sky.SkyboxUp = "rbxassetid://135080413"
+    elseif S.skyboxPreset == "Cloudy" then
+        sky.SkyboxBk = "rbxassetid://570557023"; sky.SkyboxDn = "rbxassetid://570557024"
+        sky.SkyboxFt = "rbxassetid://570557025"; sky.SkyboxLf = "rbxassetid://570557026"
+        sky.SkyboxRt = "rbxassetid://570557027"; sky.SkyboxUp = "rbxassetid://570557028"
+    elseif S.skyboxPreset == "Space" then
+        sky.SkyboxBk = "rbxassetid://149397290"; sky.SkyboxDn = "rbxassetid://149397291"
+        sky.SkyboxFt = "rbxassetid://149397292"; sky.SkyboxLf = "rbxassetid://149397293"
+        sky.SkyboxRt = "rbxassetid://149397294"; sky.SkyboxUp = "rbxassetid://149397295"
     elseif S.skyboxPreset == "Cyber" then
         sky.SkyboxBk = "rbxassetid://12064107"; sky.SkyboxDn = "rbxassetid://12064152"
         sky.SkyboxFt = "rbxassetid://12064121"; sky.SkyboxLf = "rbxassetid://12063984"
@@ -1048,36 +1005,50 @@ local function applyPostFX()
     for _, e in ipairs(postEffects) do pcall(function() e:Destroy() end) end
     postEffects = {}
 
-    if S.bloomEnabled or S.skyRTX then
+    if S.bloomEnabled or S.rtxMode then
         local b = Instance.new("BloomEffect")
-        b.Intensity = S.bloomIntensity; b.Size = 24; b.Threshold = 0.8
+        b.Intensity = S.bloomIntensity
+        b.Size = 24
+        b.Threshold = 0.9
         b.Parent = Lighting
         table.insert(postEffects, b)
     end
-    if S.colorCorrectionEnabled or S.skyRTX then
+    if S.colorCorrectionEnabled or S.rtxMode then
         local cc = Instance.new("ColorCorrectionEffect")
-        cc.Brightness = 0.05; cc.Contrast = 0.2; cc.Saturation = 0.15
+        cc.Brightness = 0.05
+        cc.Contrast = 0.3
+        cc.Saturation = 0.25
         cc.TintColor = Color3.fromRGB(255, 250, 240)
         cc.Parent = Lighting
         table.insert(postEffects, cc)
     end
     if S.depthOfField then
         local dof = Instance.new("DepthOfFieldEffect")
-        dof.FarIntensity = 0.3; dof.FocusDistance = 30; dof.InFocusRadius = 20; dof.NearIntensity = 0.2
+        dof.FarIntensity = 0.5
+        dof.FocusDistance = 30
+        dof.InFocusRadius = 20
+        dof.NearIntensity = 0.3
         dof.Parent = Lighting
         table.insert(postEffects, dof)
     end
     if S.sunRays then
         local sr = Instance.new("SunRaysEffect")
-        sr.Intensity = 0.15; sr.Spread = 1
+        sr.Intensity = 0.2
+        sr.Spread = 1
         sr.Parent = Lighting
         table.insert(postEffects, sr)
     end
     if S.filmGrain then
-        local blur = Instance.new("BlurEffect")
-        blur.Size = 1
-        blur.Parent = Lighting
-        table.insert(postEffects, blur)
+        local b = Instance.new("BlurEffect")
+        b.Size = 2
+        b.Parent = Lighting
+        table.insert(postEffects, b)
+    end
+    if S.motionBlur then
+        local b = Instance.new("BlurEffect")
+        b.Size = 3
+        b.Parent = Lighting
+        table.insert(postEffects, b)
     end
 end
 
@@ -1184,15 +1155,15 @@ track(RunService.Heartbeat:Connect(function()
     for _, p in ipairs(Players:GetPlayers()) do
         local hum = p.Character and p.Character:FindFirstChild("Humanoid")
         local hp = hum and math.floor(hum.Health) or 0
-        local lbl = Instance.new("TextLabel")
-        lbl.Size = UDim2.new(1, -8, 0, 20)
-        lbl.BackgroundTransparency = 1
-        lbl.Text = string.format("%s [%d]", p.Name, hp)
-        lbl.TextColor3 = p == LocalPlayer and S.uiAccentColor or S.uiTextColor
-        lbl.TextXAlignment = Enum.TextXAlignment.Left
-        lbl.Font = Enum.Font.Code
-        lbl.TextSize = 11
-        lbl.Parent = plScroll
+        local l = Instance.new("TextLabel")
+        l.Size = UDim2.new(1, -8, 0, 20)
+        l.BackgroundTransparency = 1
+        l.Text = string.format("%s [%d]", p.Name, hp)
+        l.TextColor3 = p == LocalPlayer and S.uiAccentColor or S.uiTextColor
+        l.TextXAlignment = Enum.TextXAlignment.Left
+        l.Font = Enum.Font.Code
+        l.TextSize = 11
+        l.Parent = plScroll
     end
     plScroll.CanvasSize = UDim2.new(0, 0, 0, #Players:GetPlayers() * 22 + 10)
 end))
@@ -1226,7 +1197,6 @@ local function startButterfly()
         end
     end))
 end
-
 local jitCon, jitState = nil, false
 local function startJitter()
     if jitCon then jitCon:Disconnect() end
@@ -1240,7 +1210,6 @@ local function startJitter()
         end
     end))
 end
-
 local dsCon
 local function startDesync()
     if dsCon then dsCon:Disconnect() end
@@ -1256,7 +1225,6 @@ local function startDesync()
         end
     end))
 end
-
 local rfCon
 local function startRapidFire()
     if rfCon then rfCon:Disconnect() end
@@ -1270,7 +1238,6 @@ local function startRapidFire()
         end
     end))
 end
-
 local abCon
 local function startAutoBlock()
     if abCon then abCon:Disconnect() end
@@ -1284,7 +1251,6 @@ local function startAutoBlock()
         end
     end))
 end
-
 local feCon, feState = nil, false
 local function startFeather()
     if feCon then feCon:Disconnect() end
@@ -1298,7 +1264,6 @@ local function startFeather()
         end
     end))
 end
-
 local srCon, srAngle = nil, 0
 local function startSpinReverse()
     if srCon then srCon:Disconnect() end
@@ -1332,26 +1297,22 @@ do
     main.Parent = screenGui
     local mC = Instance.new("UICorner"); mC.CornerRadius = UDim.new(0, 14); mC.Parent = main
     local mS = Instance.new("UIStroke"); mS.Color = S.uiAccentColor; mS.Transparency = 0.88; mS.Thickness = 1; mS.Parent = main
+    registerTheme(function() main.BackgroundColor3 = S.uiBgColor; mS.Color = S.uiAccentColor end)
 
-    registerTheme(function()
-        main.BackgroundColor3 = S.uiBgColor
-        mS.Color = S.uiAccentColor
-    end)
-
-    local mDrag, mStart, mPos = false, nil, nil
+    local d1, d2, s1, s2 = false, nil, nil, nil
     track(main.InputBegan:Connect(function(i)
         if i.UserInputType == Enum.UserInputType.MouseButton1 then
-            mDrag = true; mStart = i.Position; mPos = main.Position
+            d1 = true; s1 = i.Position; s2 = main.Position
         end
     end))
     track(UserInputService.InputChanged:Connect(function(i)
-        if mDrag and i.UserInputType == Enum.UserInputType.MouseMovement then
-            local d = i.Position - mStart
-            main.Position = UDim2.new(mPos.X.Scale, mPos.X.Offset + d.X, mPos.Y.Scale, mPos.Y.Offset + d.Y)
+        if d1 and i.UserInputType == Enum.UserInputType.MouseMovement then
+            local dd = i.Position - s1
+            main.Position = UDim2.new(s2.X.Scale, s2.X.Offset + dd.X, s2.Y.Scale, s2.Y.Offset + dd.Y)
         end
     end))
     track(UserInputService.InputEnded:Connect(function(i)
-        if i.UserInputType == Enum.UserInputType.MouseButton1 then mDrag = false end
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then d1 = false end
     end))
 
     header = Instance.new("Frame")
@@ -1368,11 +1329,7 @@ do
     hFix.BackgroundTransparency = 0.5
     hFix.BorderSizePixel = 0
     hFix.Parent = header
-
-    registerTheme(function()
-        header.BackgroundColor3 = S.uiCardColor
-        hFix.BackgroundColor3 = S.uiCardColor
-    end)
+    registerTheme(function() header.BackgroundColor3 = S.uiCardColor; hFix.BackgroundColor3 = S.uiCardColor end)
 
     local hDot = Instance.new("Frame")
     hDot.Size = UDim2.new(0, 10, 0, 10)
@@ -1380,7 +1337,7 @@ do
     hDot.BackgroundColor3 = S.uiAccentColor
     hDot.BorderSizePixel = 0
     hDot.Parent = header
-    local hDotC = Instance.new("UICorner"); hDotC.CornerRadius = UDim.new(1, 0); hDotC.Parent = hDot
+    local hDC = Instance.new("UICorner"); hDC.CornerRadius = UDim.new(1, 0); hDC.Parent = hDot
     registerTheme(function() hDot.BackgroundColor3 = S.uiAccentColor end)
 
     local hTitle = Instance.new("TextLabel")
@@ -1400,12 +1357,12 @@ do
     hBadge.Position = UDim2.new(0, 145, 0.5, -10)
     hBadge.BackgroundColor3 = S.uiAccentColor
     hBadge.BackgroundTransparency = 0.9
-    hBadge.Text = "v12.1 RTX"
+    hBadge.Text = "v13.0 RTX"
     hBadge.TextColor3 = S.uiTextColor
     hBadge.Font = Enum.Font.Code
     hBadge.TextSize = 10
     hBadge.Parent = header
-    local hBadgeC = Instance.new("UICorner"); hBadgeC.CornerRadius = UDim.new(0, 6); hBadgeC.Parent = hBadge
+    local hBC = Instance.new("UICorner"); hBC.CornerRadius = UDim.new(0, 6); hBC.Parent = hBadge
     registerTheme(function()
         hBadge.BackgroundColor3 = S.uiAccentColor
         hBadge.TextColor3 = S.uiTextColor
@@ -1423,13 +1380,8 @@ do
     hClose.Parent = header
     local hCC = Instance.new("UICorner"); hCC.CornerRadius = UDim.new(0, 6); hCC.Parent = hClose
     hClose.MouseButton1Click:Connect(function() main.Visible = false; S.guiVisible = false end)
-    registerTheme(function()
-        hClose.BackgroundColor3 = S.uiCardColor
-        hClose.TextColor3 = S.uiTextColor
-    end)
-end
+    registerTheme(function() hClose.BackgroundColor3 = S.uiCardColor; hClose.TextColor3 = S.uiTextColor end)
 
-do
     sidebar = Instance.new("Frame")
     sidebar.Size = UDim2.new(0, 150, 1, -48)
     sidebar.Position = UDim2.new(0, 0, 0, 48)
@@ -1445,10 +1397,7 @@ do
     sFix.BackgroundTransparency = 0.65
     sFix.BorderSizePixel = 0
     sFix.Parent = sidebar
-    registerTheme(function()
-        sidebar.BackgroundColor3 = S.uiCardColor
-        sFix.BackgroundColor3 = S.uiCardColor
-    end)
+    registerTheme(function() sidebar.BackgroundColor3 = S.uiCardColor; sFix.BackgroundColor3 = S.uiCardColor end)
 
     navList = Instance.new("Frame")
     navList.Size = UDim2.new(1, -16, 1, -16)
@@ -1489,16 +1438,16 @@ local function createNav(id, icon, label, order)
     ic.TextSize = 15
     ic.Parent = btn
 
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -40, 1, 0)
-    lbl.Position = UDim2.new(0, 32, 0, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = label
-    lbl.TextColor3 = S.uiTextColor
-    lbl.Font = Enum.Font.GothamBold
-    lbl.TextSize = 11
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = btn
+    local lb = Instance.new("TextLabel")
+    lb.Size = UDim2.new(1, -40, 1, 0)
+    lb.Position = UDim2.new(0, 32, 0, 0)
+    lb.BackgroundTransparency = 1
+    lb.Text = label
+    lb.TextColor3 = S.uiTextColor
+    lb.Font = Enum.Font.GothamBold
+    lb.TextSize = 11
+    lb.TextXAlignment = Enum.TextXAlignment.Left
+    lb.Parent = btn
 
     local scroll = Instance.new("ScrollingFrame")
     scroll.Size = UDim2.new(1, 0, 1, 0)
@@ -1524,13 +1473,11 @@ local function createNav(id, icon, label, order)
     list.Parent = scroll
 
     local pad = Instance.new("UIPadding")
-    pad.PaddingLeft = UDim.new(0, 4)
-    pad.PaddingRight = UDim.new(0, 4)
-    pad.PaddingTop = UDim.new(0, 4)
+    pad.PaddingLeft = UDim.new(0, 4); pad.PaddingRight = UDim.new(0, 4); pad.PaddingTop = UDim.new(0, 4)
     pad.Parent = scroll
 
     pages[id] = scroll
-    navBtns[id] = { btn = btn, icon = ic, lbl = lbl }
+    navBtns[id] = { btn = btn, icon = ic, lbl = lb }
 
     btn.MouseButton1Click:Connect(function()
         for pid, page in pairs(pages) do
@@ -1566,10 +1513,7 @@ local function createCard(parent, title)
     pad.PaddingLeft = UDim.new(0, 12); pad.PaddingRight = UDim.new(0, 12)
     pad.Parent = card
 
-    registerTheme(function()
-        card.BackgroundColor3 = S.uiCardColor
-        s.Color = S.uiAccentColor
-    end)
+    registerTheme(function() card.BackgroundColor3 = S.uiCardColor; s.Color = S.uiAccentColor end)
 
     local head = Instance.new("Frame")
     head.Size = UDim2.new(1, 0, 0, 18)
@@ -1616,16 +1560,16 @@ local function addToggle(cont, label, getter, setter)
     row.BackgroundTransparency = 1
     row.Parent = cont
 
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(0.65, 0, 1, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = label
-    lbl.TextColor3 = S.uiTextColor
-    lbl.Font = Enum.Font.Gotham
-    lbl.TextSize = 11
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = row
-    registerTheme(function() lbl.TextColor3 = S.uiTextColor end)
+    local lb = Instance.new("TextLabel")
+    lb.Size = UDim2.new(0.65, 0, 1, 0)
+    lb.BackgroundTransparency = 1
+    lb.Text = label
+    lb.TextColor3 = S.uiTextColor
+    lb.Font = Enum.Font.Gotham
+    lb.TextSize = 11
+    lb.TextXAlignment = Enum.TextXAlignment.Left
+    lb.Parent = row
+    registerTheme(function() lb.TextColor3 = S.uiTextColor end)
 
     local sw = Instance.new("TextButton")
     sw.Size = UDim2.new(0, 34, 0, 18)
@@ -1636,26 +1580,26 @@ local function addToggle(cont, label, getter, setter)
     sw.Parent = row
     local sc = Instance.new("UICorner"); sc.CornerRadius = UDim.new(1, 0); sc.Parent = sw
 
-    local knob = Instance.new("Frame")
-    knob.Size = UDim2.new(0, 12, 0, 12)
-    knob.Position = getter() and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
-    knob.BackgroundColor3 = getter() and S.uiBgColor or S.uiTextColor
-    knob.BorderSizePixel = 0
-    knob.Parent = sw
-    local kc = Instance.new("UICorner"); kc.CornerRadius = UDim.new(1, 0); kc.Parent = knob
+    local kn = Instance.new("Frame")
+    kn.Size = UDim2.new(0, 12, 0, 12)
+    kn.Position = getter() and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
+    kn.BackgroundColor3 = getter() and S.uiBgColor or S.uiTextColor
+    kn.BorderSizePixel = 0
+    kn.Parent = sw
+    local kc = Instance.new("UICorner"); kc.CornerRadius = UDim.new(1, 0); kc.Parent = kn
 
     registerTheme(function()
         local on = getter()
         sw.BackgroundColor3 = on and S.uiAccentColor or S.uiCardColor
-        knob.BackgroundColor3 = on and S.uiBgColor or S.uiTextColor
+        kn.BackgroundColor3 = on and S.uiBgColor or S.uiTextColor
     end)
 
     sw.MouseButton1Click:Connect(function()
         setter(not getter())
         local on = getter()
         sw.BackgroundColor3 = on and S.uiAccentColor or S.uiCardColor
-        knob.BackgroundColor3 = on and S.uiBgColor or S.uiTextColor
-        TweenService:Create(knob, TweenInfo.new(0.18), {
+        kn.BackgroundColor3 = on and S.uiBgColor or S.uiTextColor
+        TweenService:Create(kn, TweenInfo.new(0.18), {
             Position = on and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
         }):Play()
     end)
@@ -1709,11 +1653,7 @@ local function addSlider(cont, label, minV, maxV, getter, setter, isDec)
     fill.BorderSizePixel = 0
     fill.Parent = track
     local fc = Instance.new("UICorner"); fc.CornerRadius = UDim.new(1, 0); fc.Parent = fill
-
-    registerTheme(function()
-        track.BackgroundColor3 = S.uiCardColor
-        fill.BackgroundColor3 = S.uiAccentColor
-    end)
+    registerTheme(function() track.BackgroundColor3 = S.uiCardColor; fill.BackgroundColor3 = S.uiAccentColor end)
 
     local dragging = false
     local function upd(x)
@@ -1738,9 +1678,11 @@ local function addSlider(cont, label, minV, maxV, getter, setter, isDec)
     end)
 end
 
-local function addSelector(cont, label, options, getter, setter)
+-- СЕЛЕКТОР с возможностью переноса на 2 ряда (rows параметр)
+local function addSelector(cont, label, options, getter, setter, rows)
+    rows = rows or 1
     local box = Instance.new("Frame")
-    box.Size = UDim2.new(1, 0, 0, 38)
+    box.Size = UDim2.new(1, 0, 0, 14 + rows * 26)
     box.BackgroundTransparency = 1
     box.Parent = cont
 
@@ -1756,15 +1698,25 @@ local function addSelector(cont, label, options, getter, setter)
     registerTheme(function() n.TextColor3 = S.uiTextColor end)
 
     local holder = Instance.new("Frame")
-    holder.Size = UDim2.new(1, 0, 0, 22)
+    holder.Size = UDim2.new(1, 0, 0, rows * 26)
     holder.Position = UDim2.new(0, 0, 0, 14)
     holder.BackgroundTransparency = 1
     holder.Parent = box
 
     local hl = Instance.new("UIListLayout")
     hl.FillDirection = Enum.FillDirection.Horizontal
+    hl.Wraps = (rows > 1)
     hl.Padding = UDim.new(0, 4)
     hl.Parent = holder
+
+    if rows > 1 then
+        local cellW = math.floor((#options / rows))
+        -- ровное распределение в 2 ряда
+        local perRow = math.ceil(#options / rows)
+        hl.FillDirection = Enum.FillDirection.Horizontal
+        hl.Wraps = true
+        -- задаём ширину ячейки через padding -- проще: фикс ширина
+    end
 
     local btns = {}
     for _, opt in ipairs(options) do
@@ -1818,7 +1770,7 @@ local function addButton(cont, text, cb, danger)
     return b
 end
 
--- POPULATE TABS
+-- TABS
 local aimTab, visTab, playerTab, miscTab, rageTab, setTab
 do
     aimTab = createNav("aim", "🎯", "AIMBOT", 1)
@@ -1861,7 +1813,6 @@ do
     local c = createCard(aimTab, "AUTO FIRE")
     addToggle(c, "Auto Shoot", function() return S.autoFire end, function(v) S.autoFire = v end)
     addSlider(c, "Fire Rate (ms)", 20, 500, function() return S.autoFireRate end, function(v) S.autoFireRate = v end, false)
-    addToggle(c, "Auto Parry (Blade Ball)", function() return S.autoParry end, function(v) S.autoParry = v end)
 end
 
 -- VISUALS
@@ -1874,42 +1825,36 @@ do
     addToggle(c, "Team Check", function() return S.espTeamCheck end, function(v) S.espTeamCheck = v; refreshESP() end)
 end
 do
-    local c = createCard(visTab, "ESP COLOR PRESETS")
-    addSelector(c, "Preset", {"White","Red","Green","Blue","Purple","Cyan","Yellow","Pink","Rainbow"}, function() return S.espColorPreset end, function(v) S.espColorPreset = v; updateESPColors() end)
+    local c = createCard(visTab, "ESP COLOR (2 rows)")
+    addSelector(c, "Preset", {"White","Red","Green","Blue","Purple","Cyan","Yellow","Pink"}, function() return S.espColorPreset end, function(v) S.espColorPreset = v; updateESPColors() end, 2)
+    addSelector(c, "Special", {"Rainbow"}, function() return S.espColorPreset end, function(v) S.espColorPreset = v; updateESPColors() end, 1)
     addSlider(c, "Rainbow Speed", 0.2, 5, function() return S.rainbowSpeed end, function(v) S.rainbowSpeed = v end, true)
 end
 do
     local c = createCard(visTab, "ADVANCED ESP")
-    addSelector(c, "Chams Style", {"Always","OnTop","Glow"}, function() return S.chamsStyle end, function(v) S.chamsStyle = v end)
     addToggle(c, "Health Bar ESP", function() return S.healthBarESP end, function(v) S.healthBarESP = v; refreshESP() end)
-    addSelector(c, "Box Style", {"2D","Corner","3D"}, function() return S.boxStyle end, function(v) S.boxStyle = v end)
     addToggle(c, "Head Dot", function() return S.headDot end, function(v) S.headDot = v; refreshESP() end)
     addSlider(c, "Skeleton Thickness", 0.5, 4, function() return S.skeletonThickness end, function(v) S.skeletonThickness = v end, true)
     addSelector(c, "Tracer Origin", {"Bottom","Center","Top"}, function() return S.tracerOrigin end, function(v) S.tracerOrigin = v end)
 end
 do
-    local c = createCard(visTab, "WORLD / ATMOSPHERE")
+    local c = createCard(visTab, "WORLD")
     addToggle(c, "Fullbright", function() return S.fullbrightEnabled end, function(v) S.fullbrightEnabled = v; applyWorld() end)
     addSlider(c, "Fullbright Level", 1, 5, function() return S.fullbrightLevel end, function(v) S.fullbrightLevel = v; if S.fullbrightEnabled then applyWorld() end end, false)
     addToggle(c, "Fog", function() return S.fogEnabled end, function(v) S.fogEnabled = v; applyWorld() end)
     addSlider(c, "Fog End", 100, 2000, function() return S.fogEnd end, function(v) S.fogEnd = v; if S.fogEnabled then applyWorld() end end, false)
     addSlider(c, "Time of Day", -1, 24, function() return S.timeOfDay end, function(v) S.timeOfDay = v; applyWorld() end, false)
-    addSelector(c, "Skybox", {"Default","RTX Blue","RTX Sunset","RTX Night","Cyber"}, function() return S.skyboxPreset end, function(v) S.skyboxPreset = v; applySkybox() end)
+    addSelector(c, "Skybox", {"Default","RTX Blue","Cloudy","Space","Cyber"}, function() return S.skyboxPreset end, function(v) S.skyboxPreset = v; applySkybox() end)
+end
+do
+    local c = createCard(visTab, "POST FX")
+    addToggle(c, "RTX Mode (auto bloom+CC)", function() return S.rtxMode end, function(v) S.rtxMode = v; applyPostFX() end)
     addToggle(c, "Bloom", function() return S.bloomEnabled end, function(v) S.bloomEnabled = v; applyPostFX() end)
+    addSlider(c, "Bloom Intensity", 0.5, 5, function() return S.bloomIntensity end, function(v) S.bloomIntensity = v; if S.bloomEnabled or S.rtxMode then applyPostFX() end end, true)
     addToggle(c, "Color Correction", function() return S.colorCorrectionEnabled end, function(v) S.colorCorrectionEnabled = v; applyPostFX() end)
     addToggle(c, "Depth of Field", function() return S.depthOfField end, function(v) S.depthOfField = v; applyPostFX() end)
     addToggle(c, "Sun Rays", function() return S.sunRays end, function(v) S.sunRays = v; applyPostFX() end)
-    addSlider(c, "Bloom Intensity", 0.1, 3, function() return S.bloomIntensity end, function(v) S.bloomIntensity = v; if S.bloomEnabled then applyPostFX() end end, true)
-end
-do
-    local c = createCard(visTab, "SCREEN EFFECTS")
-    addToggle(c, "Sky RTX (all post-effects)", function() return S.skyRTX end, function(v) S.skyRTX = v; applyPostFX() end)
-    addToggle(c, "Vignette", function() return S.vignette end, function(v) S.vignette = v; applyPostFX() end)
-    addToggle(c, "Cinematic Bars", function() return S.cinematicBars end, function(v) S.cinematicBars = v end)
-    addToggle(c, "Chromatic Aberration", function() return S.chromaticAberration end, function(v) S.chromaticAberration = v end)
-    addToggle(c, "Motion Blur", function() return S.motionBlur end, function(v) S.motionBlur = v end)
-    addToggle(c, "Rain Effect", function() return S.rainEffect end, function(v) S.rainEffect = v end)
-    addToggle(c, "Snow Effect", function() return S.snowEffect end, function(v) S.snowEffect = v end)
+    addToggle(c, "Motion Blur", function() return S.motionBlur end, function(v) S.motionBlur = v; applyPostFX() end)
     addToggle(c, "Film Grain", function() return S.filmGrain end, function(v) S.filmGrain = v; applyPostFX() end)
     addToggle(c, "X-Ray", function() return S.xrayEnabled end, function(v) S.xrayEnabled = v; applyXRay() end)
     addSlider(c, "X-Ray Transp", 0.3, 0.95, function() return S.xrayTransparency end, function(v) S.xrayTransparency = v; if S.xrayEnabled then applyXRay() end end, true)
@@ -1918,9 +1863,6 @@ do
     local c = createCard(visTab, "OVERLAYS")
     addToggle(c, "Watermark", function() return S.watermarkEnabled end, function(v) S.watermarkEnabled = v; if wmFrame then wmFrame.Visible = v end end)
     addToggle(c, "Keybinds HUD", function() return S.hudEnabled end, function(v) S.hudEnabled = v; if hudContainer then hudContainer.Visible = v end end)
-    addToggle(c, "FPS Counter", function() return S.showFps end, function(v) S.showFps = v end)
-    addToggle(c, "Ping Counter", function() return S.showPing end, function(v) S.showPing = v end)
-    addToggle(c, "Clock", function() return S.showClock end, function(v) S.showClock = v end)
     addToggle(c, "Player List", function() return S.showPlayerList end, function(v) S.showPlayerList = v end)
 end
 
@@ -1964,7 +1906,6 @@ do
     addToggle(c, "Anti-AFK", function() return S.antiAfk end, function(v) S.antiAfk = v; startAntiAfk() end)
     addToggle(c, "Click TP (E+ЛКМ)", function() return S.clickTp end, function(v) S.clickTp = v; if v then startClickTp() end end)
     addToggle(c, "Anti-Void", function() return S.antiVoid end, function(v) S.antiVoid = v; startAntiVoid() end)
-    addToggle(c, "Anti-Kick", function() return S.antiKick end, function(v) S.antiKick = v end)
 end
 do
     local c = createCard(miscTab, "FOV / CAMERA")
@@ -1975,7 +1916,6 @@ do
 end
 do
     local c = createCard(miscTab, "SERVER / CHAT")
-    addToggle(c, "Auto Respawn", function() return S.autoRespawn end, function(v) S.autoRespawn = v end)
     addToggle(c, "Chat Spam", function() return S.chatSpam end, function(v) S.chatSpam = v; if v then startChatSpam() end end)
     addButton(c, "Rejoin Server", rejoin)
     addButton(c, "Server Hop", serverHop)
@@ -1998,7 +1938,7 @@ do
     addToggle(c, "Spin Reverse", function() return S.spinReverse end, function(v) S.spinReverse = v; startSpinReverse() end)
 end
 
--- SETTINGS
+-- SETTINGS — UI THEME (2 ряда) + UNLOAD рядом, потом INFO
 do
     local c = createCard(setTab, "UI THEME")
     addSelector(c, "Accent Color", {"White","Red","Green","Blue","Purple","Cyan","Yellow","Pink"}, function() return S.uiAccentPreset end, function(v)
@@ -2012,7 +1952,7 @@ do
         elseif v == "Yellow" then S.uiAccentColor = Color3.fromRGB(255,220,80)
         elseif v == "Pink" then S.uiAccentColor = Color3.fromRGB(255,120,200) end
         applyTheme()
-    end)
+    end, 2)
     addSelector(c, "BG Color", {"Black","Dark Gray","Navy","Purple","Dark Red"}, function() return "Black" end, function(v)
         if v == "Black" then S.uiBgColor = Color3.fromRGB(8,8,11); S.uiCardColor = Color3.fromRGB(18,18,24)
         elseif v == "Dark Gray" then S.uiBgColor = Color3.fromRGB(20,20,20); S.uiCardColor = Color3.fromRGB(35,35,35)
@@ -2020,23 +1960,10 @@ do
         elseif v == "Purple" then S.uiBgColor = Color3.fromRGB(15,8,25); S.uiCardColor = Color3.fromRGB(30,15,50)
         elseif v == "Dark Red" then S.uiBgColor = Color3.fromRGB(25,8,8); S.uiCardColor = Color3.fromRGB(45,15,15) end
         applyTheme()
-    end)
+    end, 2)
     addSlider(c, "Transparency", 0, 0.8, function() return S.uiOpacity end, function(v) S.uiOpacity = v; main.BackgroundTransparency = v end, true)
 end
-do
-    local c = createCard(setTab, "INFO")
-    local info = Instance.new("TextLabel")
-    info.Size = UDim2.new(1, 0, 0, 60)
-    info.BackgroundTransparency = 1
-    info.Text = string.format("User: %s\nVersion: v12.1 RTX\nExecutor: Xeno\nBy: cloud", LocalPlayer.Name)
-    info.TextColor3 = S.uiTextColor
-    info.Font = Enum.Font.Code
-    info.TextSize = 10
-    info.TextXAlignment = Enum.TextXAlignment.Left
-    info.TextYAlignment = Enum.TextYAlignment.Top
-    info.Parent = c
-    registerTheme(function() info.TextColor3 = S.uiTextColor end)
-end
+
 do
     local c = createCard(setTab, "UNLOAD")
     local unloadBtn = addButton(c, "UNLOAD CHEAT", function() end, true)
@@ -2089,10 +2016,25 @@ do
                         if part:IsA("BasePart") then part.LocalTransparencyModifier = 0 end
                     end
                 end)
-                print("[Cloud Hub v12.1] Unloaded.")
+                print("[Cloud Hub v13.0] Unloaded.")
             end)
         end
     end)
+end
+
+do
+    local c = createCard(setTab, "INFO")
+    local info = Instance.new("TextLabel")
+    info.Size = UDim2.new(1, 0, 0, 60)
+    info.BackgroundTransparency = 1
+    info.Text = string.format("User: %s\nVersion: v13.0 WORKING\nExecutor: Xeno\nBy: cloud", LocalPlayer.Name)
+    info.TextColor3 = S.uiTextColor
+    info.Font = Enum.Font.Code
+    info.TextSize = 10
+    info.TextXAlignment = Enum.TextXAlignment.Left
+    info.TextYAlignment = Enum.TextYAlignment.Top
+    info.Parent = c
+    registerTheme(function() info.TextColor3 = S.uiTextColor end)
 end
 
 -- MAIN LOOP
@@ -2116,7 +2058,6 @@ track(RunService.RenderStepped:Connect(function()
         fovCircle.Color = col
         fovCircle.Visible = S.aimCircle and S.aimEnabled
     end
-
     if fovTargetLine then
         local tp = getTargetPart(S.aimPart)
         if tp and S.aimCircle and S.aimEnabled then
@@ -2133,7 +2074,6 @@ track(RunService.RenderStepped:Connect(function()
             fovTargetLine.Visible = false
         end
     end
-
     if #crosshairLines >= 4 then
         local gap = 4
         local sz = S.crosshairSize
@@ -2161,60 +2101,60 @@ track(LocalPlayer.CharacterAdded:Connect(function()
     if not unloaded then applySpeed(); applyJump(); applySize() end
 end))
 
--- MOBILE BUTTON
+-- MOBILE
 do
-    local mobGui = Instance.new("ScreenGui")
-    mobGui.Name = "CloudMobile"
-    mobGui.ResetOnSpawn = false
-    mobGui.IgnoreGuiInset = true
-    mobGui.Parent = playerGui
+    local mg = Instance.new("ScreenGui")
+    mg.Name = "CloudMobile"
+    mg.ResetOnSpawn = false
+    mg.IgnoreGuiInset = true
+    mg.Parent = playerGui
 
-    local mobBtn = Instance.new("TextButton")
-    mobBtn.Size = UDim2.new(0, 46, 0, 46)
-    mobBtn.Position = UDim2.new(0, 15, 0.5, -23)
-    mobBtn.BackgroundColor3 = S.uiBgColor
-    mobBtn.BackgroundTransparency = 0.15
-    mobBtn.Text = "☁"
-    mobBtn.TextColor3 = S.uiAccentColor
-    mobBtn.Font = Enum.Font.Gotham
-    mobBtn.TextSize = 22
-    mobBtn.AutoButtonColor = false
-    mobBtn.Parent = mobGui
-    local mbC = Instance.new("UICorner"); mbC.CornerRadius = UDim.new(1, 0); mbC.Parent = mobBtn
-    local mbS = Instance.new("UIStroke"); mbS.Color = S.uiAccentColor; mbS.Transparency = 0.7; mbS.Parent = mobBtn
+    local mb = Instance.new("TextButton")
+    mb.Size = UDim2.new(0, 46, 0, 46)
+    mb.Position = UDim2.new(0, 15, 0.5, -23)
+    mb.BackgroundColor3 = S.uiBgColor
+    mb.BackgroundTransparency = 0.15
+    mb.Text = "☁"
+    mb.TextColor3 = S.uiAccentColor
+    mb.Font = Enum.Font.Gotham
+    mb.TextSize = 22
+    mb.AutoButtonColor = false
+    mb.Parent = mg
+    local mbC = Instance.new("UICorner"); mbC.CornerRadius = UDim.new(1, 0); mbC.Parent = mb
+    local mbS = Instance.new("UIStroke"); mbS.Color = S.uiAccentColor; mbS.Transparency = 0.7; mbS.Parent = mb
     registerTheme(function()
-        mobBtn.BackgroundColor3 = S.uiBgColor
-        mobBtn.TextColor3 = S.uiAccentColor
+        mb.BackgroundColor3 = S.uiBgColor
+        mb.TextColor3 = S.uiAccentColor
         mbS.Color = S.uiAccentColor
     end)
 
-    local mbDrag, mbStart, mbPos, mbMoved = false, nil, nil, false
-    track(mobBtn.InputBegan:Connect(function(i)
+    local d1, d2, s1, s2, moved = false, nil, nil, nil, false
+    track(mb.InputBegan:Connect(function(i)
         if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
-            mbDrag = true; mbMoved = false; mbStart = i.Position; mbPos = mobBtn.Position
+            d1 = true; moved = false; s1 = i.Position; s2 = mb.Position
         end
     end))
     track(UserInputService.InputChanged:Connect(function(i)
-        if mbDrag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
-            local d = i.Position - mbStart
-            if math.abs(d.X) > 5 or math.abs(d.Y) > 5 then mbMoved = true end
-            if mbMoved then
-                local nx = mbPos.X.Offset + d.X
-                local ny = mbPos.Y.Offset + d.Y
+        if d1 and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+            local dd = i.Position - s1
+            if math.abs(dd.X) > 5 or math.abs(dd.Y) > 5 then moved = true end
+            if moved then
+                local nx = s2.X.Offset + dd.X
+                local ny = s2.Y.Offset + dd.Y
                 local vp = Camera.ViewportSize
-                nx = math.clamp(nx, 0, vp.X - mobBtn.AbsoluteSize.X)
-                ny = math.clamp(ny, 0, vp.Y - mobBtn.AbsoluteSize.Y)
-                mobBtn.Position = UDim2.new(0, nx, 0, ny)
+                nx = math.clamp(nx, 0, vp.X - mb.AbsoluteSize.X)
+                ny = math.clamp(ny, 0, vp.Y - mb.AbsoluteSize.Y)
+                mb.Position = UDim2.new(0, nx, 0, ny)
             end
         end
     end))
     track(UserInputService.InputEnded:Connect(function(i)
         if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
-            mbDrag = false
+            d1 = false
         end
     end))
-    mobBtn.MouseButton1Click:Connect(function()
-        if not mbMoved then
+    mb.MouseButton1Click:Connect(function()
+        if not moved then
             S.guiVisible = not S.guiVisible
             if main then main.Visible = S.guiVisible end
         end
@@ -2248,10 +2188,10 @@ startAntiVoid()
 
 pcall(function()
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Cloud Hub v12.1 RTX",
-        Text = "Monochrome loaded. INSERT — menu",
+        Title = "Cloud Hub v13.0",
+        Text = "Working version loaded. INSERT — menu",
         Duration = 5
     })
 end)
 
-print("[Cloud Hub v12.1] Monochrome RTX Loaded.")
+print("[Cloud Hub v13.0] Working version loaded.")
