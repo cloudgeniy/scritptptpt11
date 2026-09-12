@@ -1,5 +1,5 @@
 --[[
-    CLOUD HUB v12.0 — MONOCHROME RTX
+    CLOUD HUB v12.1 — MONOCHROME RTX
     Executor: Xeno
     Made by cloud ( малышочек )
 --]]
@@ -19,13 +19,11 @@ local Camera = workspace.CurrentCamera
 local playerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local S = {
-    -- Aimbot
     aimEnabled = false, aimPart = "Head", aimFOV = 120, aimSmooth = 0.3,
     aimCircle = false, aimWallCheck = false, aimTeamCheck = false,
     silentAim = false, silentAimPart = "Head", silentAimMode = "Camera", silentWallCheck = false,
     crosshairEnabled = false, crosshairSize = 10, crosshairStyle = "Cross",
     autoFire = false, autoFireRate = 100, autoParry = false,
-    -- Visuals
     espEnabled = false, espType = "Highlight", espTransparency = 0.55,
     espNames = false, nameStyle = "Minimal", espTracers = false,
     espColorPreset = "White", espCustomColor = Color3.fromRGB(255,255,255),
@@ -33,7 +31,6 @@ local S = {
     chamsStyle = "Always", healthBarESP = false, boxStyle = "2D",
     headDot = false, skeletonThickness = 1.5, tracerOrigin = "Bottom",
     rainbowSpeed = 1,
-    -- World / Atmosphere
     xrayEnabled = false, xrayTransparency = 0.7,
     fullbrightEnabled = false, fullbrightLevel = 3,
     fogEnabled = false, fogEnd = 500,
@@ -41,14 +38,11 @@ local S = {
     ambientColor = nil, outdoorAmbient = nil,
     bloomEnabled = false, colorCorrectionEnabled = false,
     atmosphereDensity = 0.3, neonGlow = false, depthOfField = false,
-    -- Screen effects
     skyRTX = false, vignette = false, cinematicBars = false,
     chromaticAberration = false, motionBlur = false,
     sunRays = false, rainEffect = false, snowEffect = false,
     filmGrain = false, bloomIntensity = 1,
-    -- Overlays
     showFps = true, showPing = true, showClock = true, showPlayerList = false,
-    -- Player
     flyEnabled = false, flySpeed = 80, flyMode = "Velocity",
     speedEnabled = false, speedValue = 40,
     jumpEnabled = false, jumpValue = 120,
@@ -57,19 +51,16 @@ local S = {
     sizeEnabled = false, sizeValue = 1,
     antiFling = false, ctrlSpeed = false, ctrlSpeedValue = 80,
     noFallDamage = false, sprintToggle = false,
-    -- Misc
     noclipEnabled = false, hitboxEnabled = false, hitboxSize = 5,
     fovEnabled = false, fovValue = 90,
     zoomEnabled = false, zoomValue = 30,
     antiAfk = false, chatSpam = false, chatSpamText = "Cloud Hub on top", chatSpamDelay = 5,
     clickTp = false, autoRespawn = false,
     fpsUnlocker = false, antiVoid = false, antiKick = false,
-    -- Rage
     butterfly = false, butterflySpeed = 30,
     aaJitter = false, jitterSpeed = 10,
     desync = false, rapidFire = false, autoBlock = false,
     feather = false, fastFlyRage = false, spinReverse = false,
-    -- UI
     uiScale = 1, uiOpacity = 0.12, uiAccentPreset = "White",
     uiBgColor = Color3.fromRGB(8, 8, 11),
     uiCardColor = Color3.fromRGB(18, 18, 24),
@@ -93,27 +84,24 @@ local origGravity = workspace.Gravity
 local origCamMin = LocalPlayer.CameraMinZoomDistance
 local origCamMax = LocalPlayer.CameraMaxZoomDistance
 local origClockTime = Lighting.ClockTime
-local origSkybox = Lighting:FindFirstChildOfClass("Sky")
 
 local C = {
-    bg       = Color3.fromRGB(8, 8, 11),
-    card     = Color3.fromRGB(18, 18, 24),
-    cardHover= Color3.fromRGB(24, 24, 32),
-    border   = Color3.fromRGB(255, 255, 255),
-    text     = Color3.fromRGB(225, 225, 230),
-    muted    = Color3.fromRGB(160, 160, 171),
-    accent   = Color3.fromRGB(255, 255, 255),
-    danger   = Color3.fromRGB(200, 50, 50),
+    bg = Color3.fromRGB(8, 8, 11),
+    card = Color3.fromRGB(18, 18, 24),
+    cardHover = Color3.fromRGB(24, 24, 32),
+    border = Color3.fromRGB(255, 255, 255),
+    text = Color3.fromRGB(225, 225, 230),
+    muted = Color3.fromRGB(160, 160, 171),
+    accent = Color3.fromRGB(255, 255, 255),
+    danger = Color3.fromRGB(200, 50, 50),
 }
 
--- применяет ui-цвета ко всем элементам
 local uiThemeRefs = {}
 local function registerTheme(fn) table.insert(uiThemeRefs, fn) end
 local function applyTheme()
     for _, fn in ipairs(uiThemeRefs) do pcall(fn) end
 end
 
--- ESP color resolver
 local function getESPColor()
     local preset = S.espColorPreset
     if preset == "White"  then return Color3.fromRGB(255,255,255) end
@@ -163,7 +151,7 @@ if Drawing and Drawing.new then
     end
 end
 
--- ========== SPLASH ==========
+-- SPLASH
 do
     local splashGui = Instance.new("ScreenGui")
     splashGui.Name = "CloudSplash"
@@ -220,7 +208,7 @@ do
     end)
 end
 
--- ========== WATERMARK ==========
+-- WATERMARK
 local wmFps, wmPing, wmTime, wmFrame
 do
     local wmGui = Instance.new("ScreenGui")
@@ -297,9 +285,7 @@ do
         wmS.Color = S.uiAccentColor
         for _, ch in ipairs(wmFrame:GetChildren()) do
             if ch:IsA("TextLabel") then
-                if ch.Text == "CLOUD HUB" or ch.Text == "☁" then
-                    ch.TextColor3 = S.uiAccentColor
-                end
+                if ch.Text == "CLOUD HUB" or ch.Text == "☁" then ch.TextColor3 = S.uiAccentColor end
             elseif ch:IsA("Frame") then
                 ch.BackgroundColor3 = S.uiAccentColor
             end
@@ -323,7 +309,7 @@ do
     end))
 end
 
--- ========== HUD (fps/ping/clock) ==========
+-- HUD
 local hudContainer
 do
     local hudGui = Instance.new("ScreenGui")
@@ -437,7 +423,7 @@ do
     end))
 end
 
--- ========== WM STATS ==========
+-- WM STATS
 do
     local fpsCount, fpsTimer, fpsVal = 0, tick(), 0
     track(RunService.RenderStepped:Connect(function()
@@ -452,7 +438,7 @@ do
     end))
 end
 
--- ========== ESP ==========
+-- ESP
 local highlights, nameTags, boxes, skeletonDrawings, healthBars, headDots = {}, {}, {}, {}, {}, {}
 
 local function clearESP()
@@ -710,7 +696,7 @@ track(Players.PlayerRemoving:Connect(function(p)
     if headDots[p] then pcall(function() headDots[p]:Destroy() end); headDots[p] = nil end
 end))
 
--- ========== AIMBOT ==========
+-- AIMBOT
 local function getTargetPart(partName)
     if unloaded then return nil end
     local closest, cd = nil, S.aimFOV
@@ -812,7 +798,7 @@ local function doAutoFire()
     end)
 end
 
--- ========== FLY ==========
+-- FLY
 local flying, flyBV, flyBG, flyCon = false, nil, nil, nil
 local function startFly()
     if unloaded then return end
@@ -848,7 +834,7 @@ local function stopFly()
 end
 local function toggleFly() if S.flyEnabled then startFly() else stopFly() end end
 
--- ========== PLAYER ==========
+-- PLAYER
 local function applySpeed()
     if unloaded then return end
     local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
@@ -949,7 +935,7 @@ local function startAntiVoid()
     end))
 end
 
--- ========== MISC ==========
+-- MISC
 local ncCon
 local function startNoClip()
     if ncCon then ncCon:Disconnect() end
@@ -1009,7 +995,6 @@ local function applyXRay()
     end
 end
 
--- World effects
 local function applyWorld()
     if unloaded then return end
     if S.fullbrightEnabled then
@@ -1025,9 +1010,7 @@ local function applyWorld()
         Lighting.FogEnd = origFogEnd
         Lighting.FogStart = origFogStart
     end
-    if S.fogEnabled then
-        Lighting.FogEnd = S.fogEnd
-    end
+    if S.fogEnabled then Lighting.FogEnd = S.fogEnd end
     if S.timeOfDay >= 0 then Lighting.ClockTime = S.timeOfDay end
     if S.ambientColor then Lighting.Ambient = S.ambientColor end
     if S.outdoorAmbient then Lighting.OutdoorAmbient = S.outdoorAmbient end
@@ -1041,37 +1024,24 @@ local function applySkybox()
     local sky = Instance.new("Sky")
     sky.Parent = Lighting
     if S.skyboxPreset == "RTX Blue" then
-        sky.SkyboxBk = "rbxassetid://159454299"
-        sky.SkyboxDn = "rbxassetid://159454296"
-        sky.SkyboxFt = "rbxassetid://159454293"
-        sky.SkyboxLf = "rbxassetid://159454286"
-        sky.SkyboxRt = "rbxassetid://159454300"
-        sky.SkyboxUp = "rbxassetid://159454288"
+        sky.SkyboxBk = "rbxassetid://159454299"; sky.SkyboxDn = "rbxassetid://159454296"
+        sky.SkyboxFt = "rbxassetid://159454293"; sky.SkyboxLf = "rbxassetid://159454286"
+        sky.SkyboxRt = "rbxassetid://159454300"; sky.SkyboxUp = "rbxassetid://159454288"
     elseif S.skyboxPreset == "RTX Sunset" then
-        sky.SkyboxBk = "rbxassetid://271880665"
-        sky.SkyboxDn = "rbxassetid://271880683"
-        sky.SkyboxFt = "rbxassetid://271880730"
-        sky.SkyboxLf = "rbxassetid://271880750"
-        sky.SkyboxRt = "rbxassetid://271880777"
-        sky.SkyboxUp = "rbxassetid://271880797"
+        sky.SkyboxBk = "rbxassetid://271880665"; sky.SkyboxDn = "rbxassetid://271880683"
+        sky.SkyboxFt = "rbxassetid://271880730"; sky.SkyboxLf = "rbxassetid://271880750"
+        sky.SkyboxRt = "rbxassetid://271880777"; sky.SkyboxUp = "rbxassetid://271880797"
     elseif S.skyboxPreset == "RTX Night" then
-        sky.SkyboxBk = "rbxassetid://135080413"
-        sky.SkyboxDn = "rbxassetid://135080413"
-        sky.SkyboxFt = "rbxassetid://135080413"
-        sky.SkyboxLf = "rbxassetid://135080413"
-        sky.SkyboxRt = "rbxassetid://135080413"
-        sky.SkyboxUp = "rbxassetid://135080413"
+        sky.SkyboxBk = "rbxassetid://135080413"; sky.SkyboxDn = "rbxassetid://135080413"
+        sky.SkyboxFt = "rbxassetid://135080413"; sky.SkyboxLf = "rbxassetid://135080413"
+        sky.SkyboxRt = "rbxassetid://135080413"; sky.SkyboxUp = "rbxassetid://135080413"
     elseif S.skyboxPreset == "Cyber" then
-        sky.SkyboxBk = "rbxassetid://12064107"
-        sky.SkyboxDn = "rbxassetid://12064152"
-        sky.SkyboxFt = "rbxassetid://12064121"
-        sky.SkyboxLf = "rbxassetid://12063984"
-        sky.SkyboxRt = "rbxassetid://12064107"
-        sky.SkyboxUp = "rbxassetid://12064152"
+        sky.SkyboxBk = "rbxassetid://12064107"; sky.SkyboxDn = "rbxassetid://12064152"
+        sky.SkyboxFt = "rbxassetid://12064121"; sky.SkyboxLf = "rbxassetid://12063984"
+        sky.SkyboxRt = "rbxassetid://12064107"; sky.SkyboxUp = "rbxassetid://12064152"
     end
 end
 
--- Post-processing effects
 local postEffects = {}
 local function applyPostFX()
     if unloaded then return end
@@ -1080,39 +1050,30 @@ local function applyPostFX()
 
     if S.bloomEnabled or S.skyRTX then
         local b = Instance.new("BloomEffect")
-        b.Intensity = S.bloomIntensity
-        b.Size = 24
-        b.Threshold = 0.8
+        b.Intensity = S.bloomIntensity; b.Size = 24; b.Threshold = 0.8
         b.Parent = Lighting
         table.insert(postEffects, b)
     end
     if S.colorCorrectionEnabled or S.skyRTX then
         local cc = Instance.new("ColorCorrectionEffect")
-        cc.Brightness = 0.05
-        cc.Contrast = 0.2
-        cc.Saturation = 0.15
+        cc.Brightness = 0.05; cc.Contrast = 0.2; cc.Saturation = 0.15
         cc.TintColor = Color3.fromRGB(255, 250, 240)
         cc.Parent = Lighting
         table.insert(postEffects, cc)
     end
     if S.depthOfField then
         local dof = Instance.new("DepthOfFieldEffect")
-        dof.FarIntensity = 0.3
-        dof.FocusDistance = 30
-        dof.InFocusRadius = 20
-        dof.NearIntensity = 0.2
+        dof.FarIntensity = 0.3; dof.FocusDistance = 30; dof.InFocusRadius = 20; dof.NearIntensity = 0.2
         dof.Parent = Lighting
         table.insert(postEffects, dof)
     end
     if S.sunRays then
         local sr = Instance.new("SunRaysEffect")
-        sr.Intensity = 0.15
-        sr.Spread = 1
+        sr.Intensity = 0.15; sr.Spread = 1
         sr.Parent = Lighting
         table.insert(postEffects, sr)
     end
     if S.filmGrain then
-        -- simple film grain via blur + noise
         local blur = Instance.new("BlurEffect")
         blur.Size = 1
         blur.Parent = Lighting
@@ -1163,7 +1124,6 @@ local function startClickTp()
     end))
 end
 
--- player list
 local plGui, plFrame, plScroll
 local function setupPlayerList()
     if plGui then plGui:Destroy() end
@@ -1253,7 +1213,7 @@ local function serverHop()
     end)
 end
 
--- ========== RAGE ==========
+-- RAGE
 local bfCon, bfAngle = nil, 0
 local function startButterfly()
     if bfCon then bfCon:Disconnect() end
@@ -1352,7 +1312,7 @@ local function startSpinReverse()
     end))
 end
 
--- ========== GUI ==========
+-- GUI
 local screenGui, main, header, sidebar, content, navList
 do
     screenGui = Instance.new("ScreenGui")
@@ -1440,7 +1400,7 @@ do
     hBadge.Position = UDim2.new(0, 145, 0.5, -10)
     hBadge.BackgroundColor3 = S.uiAccentColor
     hBadge.BackgroundTransparency = 0.9
-    hBadge.Text = "v12.0 RTX"
+    hBadge.Text = "v12.1 RTX"
     hBadge.TextColor3 = S.uiTextColor
     hBadge.Font = Enum.Font.Code
     hBadge.TextSize = 10
@@ -1591,7 +1551,6 @@ local function createNav(id, icon, label, order)
     return scroll
 end
 
--- ========== UI BUILDERS ==========
 local function createCard(parent, title)
     local card = Instance.new("Frame")
     card.Size = UDim2.new(0, 285, 0, 0)
@@ -1859,7 +1818,7 @@ local function addButton(cont, text, cb, danger)
     return b
 end
 
--- ========== POPULATE TABS ==========
+-- POPULATE TABS
 local aimTab, visTab, playerTab, miscTab, rageTab, setTab
 do
     aimTab = createNav("aim", "🎯", "AIMBOT", 1)
@@ -2069,7 +2028,7 @@ do
     local info = Instance.new("TextLabel")
     info.Size = UDim2.new(1, 0, 0, 60)
     info.BackgroundTransparency = 1
-    info.Text = string.format("User: %s\nVersion: v12.0 RTX\nExecutor: Xeno\nBy: cloud", LocalPlayer.Name)
+    info.Text = string.format("User: %s\nVersion: v12.1 RTX\nExecutor: Xeno\nBy: cloud", LocalPlayer.Name)
     info.TextColor3 = S.uiTextColor
     info.Font = Enum.Font.Code
     info.TextSize = 10
@@ -2130,13 +2089,13 @@ do
                         if part:IsA("BasePart") then part.LocalTransparencyModifier = 0 end
                     end
                 end)
-                print("[Cloud Hub v12.0] Unloaded.")
+                print("[Cloud Hub v12.1] Unloaded.")
             end)
         end
     end)
 end
 
--- ========== MAIN LOOP ==========
+-- MAIN LOOP
 track(RunService.RenderStepped:Connect(function()
     if unloaded then return end
     doAimbot()
@@ -2202,7 +2161,7 @@ track(LocalPlayer.CharacterAdded:Connect(function()
     if not unloaded then applySpeed(); applyJump(); applySize() end
 end))
 
--- ========== MOBILE BUTTON ==========
+-- MOBILE BUTTON
 do
     local mobGui = Instance.new("ScreenGui")
     mobGui.Name = "CloudMobile"
@@ -2262,7 +2221,7 @@ do
     end)
 end
 
--- ========== INPUT ==========
+-- INPUT
 track(UserInputService.InputBegan:Connect(function(input, gp)
     if gp or unloaded then return end
     if input.KeyCode == Enum.KeyCode.Insert then
@@ -2279,7 +2238,7 @@ track(UserInputService.InputBegan:Connect(function(input, gp)
     end
 end))
 
--- ========== BOOT ==========
+-- BOOT
 refreshESP()
 applySpeed(); applyJump(); applyFOV(); applyZoom()
 startInfJump(); startAutoJump(); startBunnyHop(); startAntiFling()
@@ -2289,10 +2248,10 @@ startAntiVoid()
 
 pcall(function()
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Cloud Hub v12.0 RTX",
+        Title = "Cloud Hub v12.1 RTX",
         Text = "Monochrome loaded. INSERT — menu",
         Duration = 5
     })
 end)
 
-print("[Cloud Hub v12.0] Monochrome RTX Loaded.")
+print("[Cloud Hub v12.1] Monochrome RTX Loaded.")
