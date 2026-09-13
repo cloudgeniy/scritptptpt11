@@ -2154,13 +2154,29 @@ do
     end)
 end
 
+-- MOUSE HOOK (обход lock mode)
+task.spawn(function()
+    while not unloaded do
+        if S.guiVisible or S.cursorEnabled then
+            pcall(function()
+                UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+                UserInputService.MouseIconEnabled = true
+            end)
+        end
+        task.wait()
+    end
+end)
+
 -- INPUT
 track(UserInputService.InputBegan:Connect(function(input, gp)
     if gp or unloaded then return end
     if input.KeyCode == Enum.KeyCode.Insert then
         S.guiVisible = not S.guiVisible
         if main then main.Visible = S.guiVisible end
-        pcall(function() UserInputService.MouseIconEnabled = S.guiVisible end)
+        pcall(function()
+            UserInputService.MouseBehavior = S.guiVisible and Enum.MouseBehavior.Default or Enum.MouseBehavior.LockCenter
+            UserInputService.MouseIconEnabled = S.guiVisible
+        end)
     end
     if input.KeyCode == Enum.KeyCode.G then
         S.flyEnabled = not S.flyEnabled
@@ -2172,10 +2188,16 @@ track(UserInputService.InputBegan:Connect(function(input, gp)
     end
     if input.KeyCode == Enum.KeyCode.K then
         S.cursorEnabled = not S.cursorEnabled
-        pcall(function() UserInputService.MouseIconEnabled = S.cursorEnabled end)
+        pcall(function()
+            if S.cursorEnabled then
+                UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+                UserInputService.MouseIconEnabled = true
+            else
+                UserInputService.MouseIconEnabled = false
+            end
+        end)
     end
 end))
-
 -- BOOT
 refreshESP()
 applySpeed(); applyJump(); applyFOV(); applyZoom()
