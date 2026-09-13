@@ -1,7 +1,8 @@
 --[[
-    CLOUD HUB v13.0 — WORKING RTX
+    CLOUD HUB v13.1 — WORKING RTX
     Executor: Xeno
     Made by cloud ( малышочек )
+    + bind K — cursor toggle
 --]]
 
 local Players = game:GetService("Players")
@@ -63,6 +64,7 @@ local S = {
     uiTextColor = Color3.fromRGB(225, 225, 230),
     watermarkEnabled = true, hudEnabled = true, guiVisible = true,
     showPlayerList = false,
+    cursorEnabled = false,
 }
 
 local unloaded = false
@@ -374,6 +376,7 @@ do
     addBind("Aimbot", "[MB2]")
     addBind("Fly", "[G]")
     addBind("NoClip", "[V]")
+    addBind("Cursor", "[K]")
     addBind("Menu", "[INSERT]")
 
     registerTheme(function()
@@ -667,8 +670,7 @@ end))
 
 -- AIMBOT
 local function getTargetPart(partName)
-    if unloaded then return nil end
-    local closest, cd = nil, S.aimFOV
+    if unloaded then return nil end    local closest, cd = nil, S.aimFOV
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= LocalPlayer and p.Character then
             if not (S.aimTeamCheck and p.Team == LocalPlayer.Team) then
@@ -979,7 +981,6 @@ local function applySkybox()
     if S.skyboxPreset == "Default" then return end
     local sky = Instance.new("Sky")
     sky.Parent = Lighting
-    -- рабочие ассеты:
     if S.skyboxPreset == "RTX Blue" then
         sky.SkyboxBk = "rbxassetid://159454299"; sky.SkyboxDn = "rbxassetid://159454296"
         sky.SkyboxFt = "rbxassetid://159454293"; sky.SkyboxLf = "rbxassetid://159454286"
@@ -1357,7 +1358,7 @@ do
     hBadge.Position = UDim2.new(0, 145, 0.5, -10)
     hBadge.BackgroundColor3 = S.uiAccentColor
     hBadge.BackgroundTransparency = 0.9
-    hBadge.Text = "v13.0 RTX"
+    hBadge.Text = "v13.1 RTX"
     hBadge.TextColor3 = S.uiTextColor
     hBadge.Font = Enum.Font.Code
     hBadge.TextSize = 10
@@ -1678,7 +1679,6 @@ local function addSlider(cont, label, minV, maxV, getter, setter, isDec)
     end)
 end
 
--- СЕЛЕКТОР с возможностью переноса на 2 ряда (rows параметр)
 local function addSelector(cont, label, options, getter, setter, rows)
     rows = rows or 1
     local box = Instance.new("Frame")
@@ -1708,15 +1708,6 @@ local function addSelector(cont, label, options, getter, setter, rows)
     hl.Wraps = (rows > 1)
     hl.Padding = UDim.new(0, 4)
     hl.Parent = holder
-
-    if rows > 1 then
-        local cellW = math.floor((#options / rows))
-        -- ровное распределение в 2 ряда
-        local perRow = math.ceil(#options / rows)
-        hl.FillDirection = Enum.FillDirection.Horizontal
-        hl.Wraps = true
-        -- задаём ширину ячейки через padding -- проще: фикс ширина
-    end
 
     local btns = {}
     for _, opt in ipairs(options) do
@@ -1938,7 +1929,7 @@ do
     addToggle(c, "Spin Reverse", function() return S.spinReverse end, function(v) S.spinReverse = v; startSpinReverse() end)
 end
 
--- SETTINGS — UI THEME (2 ряда) + UNLOAD рядом, потом INFO
+-- SETTINGS
 do
     local c = createCard(setTab, "UI THEME")
     addSelector(c, "Accent Color", {"White","Red","Green","Blue","Purple","Cyan","Yellow","Pink"}, function() return S.uiAccentPreset end, function(v)
@@ -2004,6 +1995,7 @@ do
                     local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
                     if hum then hum.WalkSpeed = 16; hum.JumpPower = 50; hum.PlatformStand = false end
                 end)
+                pcall(function() UserInputService.MouseIconEnabled = true end)
                 for root, sz in pairs(origSizes) do pcall(function() root.Size = sz end) end
                 for _, gui in ipairs(playerGui:GetChildren()) do
                     if gui.Name == "CloudSplash" or gui.Name == "CloudWatermark" or gui.Name == "CloudHUD"
@@ -2016,7 +2008,7 @@ do
                         if part:IsA("BasePart") then part.LocalTransparencyModifier = 0 end
                     end
                 end)
-                print("[Cloud Hub v13.0] Unloaded.")
+                print("[Cloud Hub v13.1] Unloaded.")
             end)
         end
     end)
@@ -2025,9 +2017,9 @@ end
 do
     local c = createCard(setTab, "INFO")
     local info = Instance.new("TextLabel")
-    info.Size = UDim2.new(1, 0, 0, 60)
+    info.Size = UDim2.new(1, 0, 0, 70)
     info.BackgroundTransparency = 1
-    info.Text = string.format("User: %s\nVersion: v13.0 WORKING\nExecutor: Xeno\nBy: cloud", LocalPlayer.Name)
+    info.Text = string.format("User: %s\nVersion: v13.1 WORKING\nCursor bind: [K]\nExecutor: Xeno\nBy: cloud", LocalPlayer.Name)
     info.TextColor3 = S.uiTextColor
     info.Font = Enum.Font.Code
     info.TextSize = 10
@@ -2157,6 +2149,7 @@ do
         if not moved then
             S.guiVisible = not S.guiVisible
             if main then main.Visible = S.guiVisible end
+            pcall(function() UserInputService.MouseIconEnabled = S.guiVisible end)
         end
     end)
 end
@@ -2167,6 +2160,7 @@ track(UserInputService.InputBegan:Connect(function(input, gp)
     if input.KeyCode == Enum.KeyCode.Insert then
         S.guiVisible = not S.guiVisible
         if main then main.Visible = S.guiVisible end
+        pcall(function() UserInputService.MouseIconEnabled = S.guiVisible end)
     end
     if input.KeyCode == Enum.KeyCode.G then
         S.flyEnabled = not S.flyEnabled
@@ -2175,6 +2169,10 @@ track(UserInputService.InputBegan:Connect(function(input, gp)
     if input.KeyCode == Enum.KeyCode.V then
         S.noclipEnabled = not S.noclipEnabled
         toggleNoClip()
+    end
+    if input.KeyCode == Enum.KeyCode.K then
+        S.cursorEnabled = not S.cursorEnabled
+        pcall(function() UserInputService.MouseIconEnabled = S.cursorEnabled end)
     end
 end))
 
@@ -2188,10 +2186,10 @@ startAntiVoid()
 
 pcall(function()
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Cloud Hub v13.0",
-        Text = "Working version loaded. INSERT — menu",
+        Title = "Cloud Hub v13.1",
+        Text = "Loaded. INSERT menu, K cursor, G fly, V noclip",
         Duration = 5
     })
 end)
 
-print("[Cloud Hub v13.0] Working version loaded.")
+print("[Cloud Hub v13.1] Loaded. K — cursor toggle.")
